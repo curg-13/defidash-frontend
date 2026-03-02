@@ -20,7 +20,7 @@ export default defineConfig({
       process: 'process/browser',
       '@scallop-io/sui-scallop-sdk': path.resolve(
         __dirname,
-        'node_modules/defi-dash-sdk/node_modules/@scallop-io/sui-scallop-sdk/dist/index.mjs'
+        'node_modules/@scallop-io/sui-scallop-sdk/dist/index.js'
       ),
     },
   },
