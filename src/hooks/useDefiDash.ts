@@ -188,6 +188,11 @@ export function useDefiDash() {
     return sdk.getOpenPositions();
   }, [getSDK]);
 
+  const getTokenPrice = useCallback(async (asset: string) => {
+    const sdk = await getSDK();
+    return sdk.getTokenPrice(asset);
+  }, [getSDK]);
+
   return {
     isConnected: !!account?.address,
     address: account?.address,
@@ -204,6 +209,7 @@ export function useDefiDash() {
     // getMaxWithdrawable, // TODO: removed in SDK v0.1.4 — needs alternative implementation
     findBestLeverageRoute, // New in SDK v0.1.4
     getOpenPositions, // New in SDK v0.1.4
+    getTokenPrice,
     getSDK, // Exposed for other hooks
   };
 }

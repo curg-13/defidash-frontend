@@ -22,6 +22,13 @@ export const SUPPORTED_TOKENS = {
     decimals: 8,
     icon: 'https://assets.coingecko.com/coins/images/39969/standard/LBTC_Logo.png',
   },
+  XBTC: {
+    symbol: 'XBTC',
+    name: 'XBTC',
+    coinType: '0x876a4b7bce8aeaef60464c11f4026903e9afacab79b9b142686158aa86560b50::xbtc::XBTC',
+    decimals: 8,
+    icon: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
+  },
 } as const;
 
 export const protocols: Protocol[] = [
@@ -38,6 +45,14 @@ export const protocols: Protocol[] = [
     name: 'Suilend',
     logo: '',
     siteUrl: 'https://suilend.fi',
+    categories: ['lending'],
+    chains: ['sui'],
+  },
+  {
+    id: 'scallop',
+    name: 'Scallop',
+    logo: '',
+    siteUrl: 'https://scallop.io',
     categories: ['lending'],
     chains: ['sui'],
   },
