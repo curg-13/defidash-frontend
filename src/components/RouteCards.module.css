@@ -50,6 +50,13 @@
   transition: border-color 0.2s ease;
 }
 
+.dollarSign {
+  color: var(--text-secondary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
 .amountInput:focus-within {
   border-color: #6cf;
 }
@@ -94,6 +101,14 @@
   color: var(--text-secondary);
   font-size: 14px;
   font-weight: 600;
+}
+
+.helperText {
+  margin-top: 8px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-style: italic;
 }
 
 /* Loading State */

@@ -7,14 +7,14 @@ import styles from './RouteCards.module.css';
 
 interface RouteCardsProps {
   selectedAsset: string;
-  amount: string;
-  onAmountChange: (amount: string) => void;
+  usdValue: string;
+  onUsdValueChange: (usdValue: string) => void;
   selectedRoute: 'maxLeverage' | 'bestApy' | null;
   onRouteSelect: (route: 'maxLeverage' | 'bestApy', routeData: LeverageRoute) => void;
 }
 
-export function RouteCards({ selectedAsset, amount, onAmountChange, selectedRoute, onRouteSelect }: RouteCardsProps) {
-  const { findBestLeverageRoute, getTokenBalance, isConnected } = useDefiDash();
+export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selectedRoute, onRouteSelect }: RouteCardsProps) {
+  const { findBestLeverageRoute, getTokenBalance, getTokenPrice, isConnected } = useDefiDash();
   const [maxButtonClicked, setMaxButtonClicked] = useState(false);
 
   const tokenInfo = SUPPORTED_TOKENS[selectedAsset as keyof typeof SUPPORTED_TOKENS];
@@ -26,15 +26,23 @@ export function RouteCards({ selectedAsset, amount, onAmountChange, selectedRout
     enabled: isConnected && !!tokenInfo?.coinType,
   });
 
-  // Find best routes when amount is entered
+  // Get current token price
+  const { data: tokenPrice = 0 } = useQuery({
+    queryKey: ['tokenPrice', selectedAsset],
+    queryFn: () => getTokenPrice(selectedAsset),
+    enabled: isConnected,
+    staleTime: 30_000, // 30 seconds
+  });
+
+  // Find best routes when USD value is entered
   const { data: routeResult, isLoading: isLoadingRoutes, error: routeError } = useQuery({
-    queryKey: ['bestRoute', selectedAsset, amount],
+    queryKey: ['bestRoute', selectedAsset, usdValue],
     queryFn: (): Promise<LeverageRouteResult> => 
       findBestLeverageRoute({
         depositAsset: selectedAsset,
-        depositAmount: amount,
+        depositValueUsd: parseFloat(usdValue),
       }),
-    enabled: !!amount && parseFloat(amount) > 0,
+    enabled: !!usdValue && parseFloat(usdValue) > 0,
     staleTime: 0, // No cache - always fetch fresh rates
   });
 
@@ -43,11 +51,25 @@ export function RouteCards({ selectedAsset, amount, onAmountChange, selectedRout
     return balanceNum.toFixed(4);
   };
 
+  const formatBalanceUsd = (bal: string) => {
+    const balanceNum = parseFloat(bal) / Math.pow(10, tokenInfo?.decimals || 9);
+    const balanceUsd = balanceNum * tokenPrice;
+    return balanceUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  const getTokenEquivalent = (usd: string) => {
+    if (!usd || !tokenPrice || tokenPrice === 0) return '0';
+    const usdNum = parseFloat(usd);
+    const tokenAmount = usdNum / tokenPrice;
+    return tokenAmount.toFixed(4);
+  };
+
   const handleMaxClick = () => {
     const balanceNum = parseFloat(balance) / Math.pow(10, tokenInfo?.decimals || 9);
     // Leave a small buffer for gas fees
-    const maxAmount = Math.max(0, balanceNum - 0.01).toString();
-    onAmountChange(maxAmount);
+    const maxTokenAmount = Math.max(0, balanceNum - 0.01);
+    const maxUsdValue = (maxTokenAmount * tokenPrice).toString();
+    onUsdValueChange(maxUsdValue);
     setMaxButtonClicked(true);
   };
 
@@ -82,39 +104,45 @@ export function RouteCards({ selectedAsset, amount, onAmountChange, selectedRout
 
   return (
     <div className={styles.container}>
-      <h3 className={styles.title}>Enter Amount & Find Best Route</h3>
+      <h3 className={styles.title}>Enter Value & Find Best Route</h3>
       <p className={styles.description}>
-        Enter the amount of {selectedAsset} you want to leverage, and we'll find the best protocols for you.
+        Enter the USD value you want to leverage, and we'll find the best protocols for you.
       </p>
 
-      {/* Amount Input */}
+      {/* USD Value Input */}
       <div className={styles.amountSection}>
         <div className={styles.amountLabel}>
-          <span>Deposit Amount</span>
+          <span>Deposit Value (USD)</span>
           <span className={styles.balance}>
-            Balance: {formatBalance(balance)} {selectedAsset}
+            Balance: ${formatBalanceUsd(balance)} (≈ {formatBalance(balance)} {selectedAsset})
           </span>
         </div>
         <div className={styles.amountInput}>
+          <span className={styles.dollarSign}>$</span>
           <input
             type="number"
-            placeholder="0.00"
-            value={amount}
-            onChange={(e) => onAmountChange(e.target.value)}
+            placeholder="1000"
+            value={usdValue}
+            onChange={(e) => onUsdValueChange(e.target.value)}
             className={styles.input}
-            step="0.01"
+            step="1"
+            min="0"
           />
           <div className={styles.inputSuffix}>
             <button type="button" onClick={handleMaxClick} className={styles.maxButton}>
               MAX
             </button>
-            <span className={styles.assetSymbol}>{selectedAsset}</span>
           </div>
         </div>
+        {usdValue && parseFloat(usdValue) > 0 && tokenPrice > 0 && (
+          <div className={styles.helperText}>
+            ≈ {getTokenEquivalent(usdValue)} {selectedAsset}
+          </div>
+        )}
       </div>
 
       {/* Loading State */}
-      {isLoadingRoutes && amount && parseFloat(amount) > 0 && (
+      {isLoadingRoutes && usdValue && parseFloat(usdValue) > 0 && (
         <div className={styles.loadingState}>
           <div className={styles.spinner} />
           <p>Finding best leverage routes...</p>

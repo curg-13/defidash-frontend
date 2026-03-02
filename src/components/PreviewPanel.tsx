@@ -9,12 +9,12 @@ import styles from './PreviewPanel.module.css';
 
 interface PreviewPanelProps {
   selectedAsset: string;
-  amount: string;
+  usdValue: string;
   routeData: LeverageRoute;
   onBack: () => void;
 }
 
-export function PreviewPanel({ selectedAsset, amount, routeData, onBack }: PreviewPanelProps) {
+export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: PreviewPanelProps) {
   const navigate = useNavigate();
   const account = useCurrentAccount();
   const queryClient = useQueryClient();
@@ -37,7 +37,7 @@ export function PreviewPanel({ selectedAsset, amount, routeData, onBack }: Previ
       await sdk.buildLeverageTransaction(tx, {
         protocol,
         depositAsset: selectedAsset,
-        depositAmount: amount,
+        depositValueUsd: parseFloat(usdValue),
         multiplier,
       });
 
@@ -78,9 +78,8 @@ export function PreviewPanel({ selectedAsset, amount, routeData, onBack }: Previ
   };
 
   const getPriceBuffer = () => {
-    const currentPrice = preview.initialEquityUsd / parseFloat(amount);
-    const bufferPercent = ((currentPrice - preview.liquidationPrice) / currentPrice) * 100;
-    return bufferPercent;
+    // Use the price drop buffer directly from preview since we don't have token amount
+    return preview.priceDropBuffer * 100; // Convert to percentage
   };
 
   return (

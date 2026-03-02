@@ -17,7 +17,7 @@ export function StrategyPage() {
   // Wizard state
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
-  const [amount, setAmount] = useState<string>('');
+  const [usdValue, setUsdValue] = useState<string>('');
   const [selectedRouteType, setSelectedRouteType] = useState<RouteType | null>(null);
   const [selectedRouteData, setSelectedRouteData] = useState<LeverageRoute | null>(null);
 
@@ -46,12 +46,12 @@ export function StrategyPage() {
     } else if (currentStep === 2) {
       setCurrentStep(1);
       setSelectedAsset(null);
-      setAmount('');
+      setUsdValue('');
     }
   };
 
   const canProceedToStep2 = selectedAsset !== null;
-  const canProceedToStep3 = canProceedToStep2 && amount && parseFloat(amount) > 0 && selectedRouteType && selectedRouteData;
+  const canProceedToStep3 = canProceedToStep2 && usdValue && parseFloat(usdValue) > 0 && selectedRouteType && selectedRouteData;
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -74,8 +74,8 @@ export function StrategyPage() {
           <div>
             <RouteCards
               selectedAsset={selectedAsset}
-              amount={amount}
-              onAmountChange={setAmount}
+              usdValue={usdValue}
+              onUsdValueChange={setUsdValue}
               selectedRoute={selectedRouteType}
               onRouteSelect={handleRouteSelect}
             />
@@ -93,7 +93,7 @@ export function StrategyPage() {
         );
         
       case 3:
-        if (!selectedAsset || !amount || !selectedRouteData) {
+        if (!selectedAsset || !usdValue || !selectedRouteData) {
           // Shouldn't happen, but fallback
           setCurrentStep(2);
           return null;
@@ -102,7 +102,7 @@ export function StrategyPage() {
         return (
           <PreviewPanel
             selectedAsset={selectedAsset}
-            amount={amount}
+            usdValue={usdValue}
             routeData={selectedRouteData}
             onBack={handleBack}
           />
@@ -148,7 +148,7 @@ export function StrategyPage() {
                 {JSON.stringify({
                   currentStep,
                   selectedAsset,
-                  amount,
+                  usdValue,
                   selectedRouteType,
                   hasRouteData: !!selectedRouteData,
                   canProceedToStep2,
