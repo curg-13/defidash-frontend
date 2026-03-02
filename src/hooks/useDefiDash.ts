@@ -12,6 +12,10 @@ import type {
   DefiDashSDK as DefiDashSDKType,
   LendingProtocol as LendingProtocolType,
   BrowserLeverageParams,
+  BrowserDeleverageParams,
+  FindBestRouteParams,
+  LeverageRoute,
+  LeveragePreview,
 } from 'defi-dash-sdk';
 
 // Extract values
@@ -36,13 +40,12 @@ export function useDefiDash() {
   const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
   const sdkRef = useRef<DefiDashSDK | null>(null);
 
-  // Initialize SDK (lazy)
+  // Initialize SDK (lazy) - Updated for v0.1.4
   const getSDK = useCallback(async () => {
     if (!account?.address) throw new Error('Wallet not connected');
 
     if (!sdkRef.current) {
-      sdkRef.current = new DefiDashSDK();
-      await sdkRef.current.initialize(suiClient as any, account.address);
+      sdkRef.current = await DefiDashSDK.create(suiClient as any, account.address);
     }
     return sdkRef.current;
   }, [account, suiClient]);
@@ -72,7 +75,8 @@ export function useDefiDash() {
       tx.setSender(account!.address);
       tx.setGasBudget(200_000_000);
 
-      await sdk.buildDeleverageTransaction(tx, { protocol });
+      const deleverageParams: BrowserDeleverageParams = { protocol };
+      await sdk.buildDeleverageTransaction(tx, deleverageParams);
 
       return signAndExecute({ transaction: tx as any });
     },
@@ -117,13 +121,14 @@ export function useDefiDash() {
     return sdk.getAggregatedPortfolio();
   }, [getSDK]);
 
-  const getMarkets = useCallback(async () => {
-    const sdk = await getSDK();
-    return sdk.getAggregatedMarkets();
-  }, [getSDK]);
+  // TODO: removed in SDK v0.1.4 — needs alternative implementation
+  // const getMarkets = useCallback(async () => {
+  //   const sdk = await getSDK();
+  //   return sdk.getAggregatedMarkets();
+  // }, [getSDK]);
 
   const previewLeverage = useCallback(
-    async (params: { depositAsset: string; depositAmount: string; multiplier: number }) => {
+    async (params: { protocol: LendingProtocol; depositAsset: string; depositAmount: string; multiplier: number }) => {
       const sdk = await getSDK();
       return sdk.previewLeverage(params);
     },
@@ -149,23 +154,39 @@ export function useDefiDash() {
     [account, suiClient]
   );
 
-  const getMaxBorrowable = useCallback(
-    async (protocol: LendingProtocol, coinType: string) => {
+  // TODO: removed in SDK v0.1.4 — needs alternative implementation
+  // const getMaxBorrowable = useCallback(
+  //   async (protocol: LendingProtocol, coinType: string) => {
+  //     const sdk = await getSDK();
+  //     if (!account?.address) return '0';
+  //     return sdk.getMaxBorrowable(protocol, coinType);
+  //   },
+  //   [account, getSDK]
+  // );
+
+  // TODO: removed in SDK v0.1.4 — needs alternative implementation
+  // const getMaxWithdrawable = useCallback(
+  //   async (protocol: LendingProtocol, coinType: string) => {
+  //     const sdk = await getSDK();
+  //     if (!account?.address) return '0';
+  //     return sdk.getMaxWithdrawable(protocol, coinType);
+  //   },
+  //   [account, getSDK]
+  // );
+
+  // New methods in SDK v0.1.4
+  const findBestLeverageRoute = useCallback(
+    async (params: FindBestRouteParams) => {
       const sdk = await getSDK();
-      if (!account?.address) return '0';
-      return sdk.getMaxBorrowable(protocol, coinType);
+      return sdk.findBestLeverageRoute(params);
     },
-    [account, getSDK]
+    [getSDK]
   );
 
-  const getMaxWithdrawable = useCallback(
-    async (protocol: LendingProtocol, coinType: string) => {
-      const sdk = await getSDK();
-      if (!account?.address) return '0';
-      return sdk.getMaxWithdrawable(protocol, coinType);
-    },
-    [account, getSDK]
-  );
+  const getOpenPositions = useCallback(async () => {
+    const sdk = await getSDK();
+    return sdk.getOpenPositions();
+  }, [getSDK]);
 
   return {
     isConnected: !!account?.address,
@@ -175,12 +196,14 @@ export function useDefiDash() {
     getPosition,
     dryRunLeverage,
     getPortfolio,
-    getMarkets,
+    // getMarkets, // TODO: removed in SDK v0.1.4 — needs alternative implementation
     previewLeverage,
     getBalances,
     getTokenBalance,
-    getMaxBorrowable,
-    getMaxWithdrawable,
+    // getMaxBorrowable, // TODO: removed in SDK v0.1.4 — needs alternative implementation
+    // getMaxWithdrawable, // TODO: removed in SDK v0.1.4 — needs alternative implementation
+    findBestLeverageRoute, // New in SDK v0.1.4
+    getOpenPositions, // New in SDK v0.1.4
     getSDK, // Exposed for other hooks
   };
 }
