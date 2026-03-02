@@ -154,7 +154,9 @@ export function StrategyPage() {
                   canProceedToStep2,
                   canProceedToStep3,
                   isConnected: !!account,
-                }, null, 2)}
+                }, (key, value) =>
+                  typeof value === 'bigint' ? value.toString() : value
+                , 2)}
               </pre>
             </details>
           </div>

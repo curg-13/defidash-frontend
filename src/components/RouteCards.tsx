@@ -65,11 +65,24 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
   };
 
   const handleMaxClick = () => {
+    // Ensure we have valid balance and price
+    if (!balance || balance === '0' || !tokenPrice || tokenPrice <= 0) {
+      console.warn('MAX button: Invalid balance or token price', { balance, tokenPrice });
+      return;
+    }
+
     const balanceNum = parseFloat(balance) / Math.pow(10, tokenInfo?.decimals || 9);
     // Leave a small buffer for gas fees
     const maxTokenAmount = Math.max(0, balanceNum - 0.01);
-    const maxUsdValue = (maxTokenAmount * tokenPrice).toString();
-    onUsdValueChange(maxUsdValue);
+    const maxUsdValue = maxTokenAmount * tokenPrice;
+    
+    // Ensure we have a valid USD value
+    if (maxUsdValue <= 0 || isNaN(maxUsdValue)) {
+      console.warn('MAX button: Invalid USD value calculated', { maxTokenAmount, tokenPrice, maxUsdValue });
+      return;
+    }
+
+    onUsdValueChange(maxUsdValue.toString());
     setMaxButtonClicked(true);
   };
 
@@ -79,7 +92,10 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
     return `${sign}${(apy * 100).toFixed(2)}%`;
   };
   
-  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+  const formatPrice = (price: number) => `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  
+  const formatProtocolName = (protocol: string) => 
+    protocol.charAt(0).toUpperCase() + protocol.slice(1).toLowerCase();
 
   const getRiskLevel = (mult: number) => {
     if (mult >= 5) return { level: 'High', bars: 8 };
@@ -173,7 +189,7 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
                     Best Overall
                   </div>
                   <div className={styles.routeProtocol}>
-                    Protocol: {routeResult.bestApy.protocol}
+                    Protocol: {formatProtocolName(routeResult.bestApy.protocol)}
                   </div>
                 </div>
                 <div className={styles.routeMetrics}>
@@ -216,7 +232,7 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
                     Max Leverage
                   </div>
                   <div className={styles.routeProtocol}>
-                    Protocol: {routeResult.bestMaxMultiplier.protocol}
+                    Protocol: {formatProtocolName(routeResult.bestMaxMultiplier.protocol)}
                   </div>
                 </div>
                 <div className={styles.routeMetrics}>
@@ -257,7 +273,7 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
                     Best Return
                   </div>
                   <div className={styles.routeProtocol}>
-                    Protocol: {routeResult.bestApy.protocol}
+                    Protocol: {formatProtocolName(routeResult.bestApy.protocol)}
                   </div>
                 </div>
                 <div className={styles.routeMetrics}>
