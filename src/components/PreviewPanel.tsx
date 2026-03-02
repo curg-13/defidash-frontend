@@ -69,6 +69,15 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
     return `${sign}${(value * 100).toFixed(2)}%`;
   };
 
+  const formatLiquidationPrice = (price: number, priceDropBuffer: number) => (
+    <>
+      {formatCurrency(price)}{' '}
+      <span style={{ color: '#ff4444', fontWeight: 500 }}>
+        (-{(priceDropBuffer * 100).toFixed(1)}%)
+      </span>
+    </>
+  );
+
   const formatMultiplier = (mult: number) => `${mult.toFixed(2)}x`;
 
   const getHealthColor = (healthFactor: number) => {
@@ -144,12 +153,9 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
             </div>
             <div className={styles.row}>
               <span className={styles.label}>Liq. Price:</span>
-              <span className={styles.value}>{formatCurrency(preview.liquidationPrice)}</span>
+              <span className={styles.value}>{formatLiquidationPrice(preview.liquidationPrice, preview.priceDropBuffer)}</span>
             </div>
-            <div className={styles.row}>
-              <span className={styles.label}>Price Buffer:</span>
-              <span className={styles.value}>{getPriceBuffer().toFixed(1)}% drop</span>
-            </div>
+
           </div>
 
           <div className={styles.divider} />

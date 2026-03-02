@@ -72,8 +72,9 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
     }
 
     const balanceNum = parseFloat(balance) / Math.pow(10, tokenInfo?.decimals || 9);
-    // Leave a small buffer for gas fees
-    const maxTokenAmount = Math.max(0, balanceNum - 0.01);
+    // Leave a small buffer for gas fees (proportional to balance)
+    const gasBufferPercentage = 0.05; // 5% buffer
+    const maxTokenAmount = Math.max(0, balanceNum * (1 - gasBufferPercentage));
     const maxUsdValue = maxTokenAmount * tokenPrice;
     
     // Ensure we have a valid USD value
@@ -93,6 +94,15 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
   };
   
   const formatPrice = (price: number) => `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  
+  const formatLiquidationPrice = (price: number, priceDropBuffer: number) => (
+    <>
+      {formatPrice(price)}{' '}
+      <span style={{ color: '#ff4444', fontWeight: 500 }}>
+        (-{(priceDropBuffer * 100).toFixed(1)}%)
+      </span>
+    </>
+  );
   
   const formatProtocolName = (protocol: string) => 
     protocol.charAt(0).toUpperCase() + protocol.slice(1).toLowerCase();
@@ -205,7 +215,7 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
                   </div>
                   <div className={styles.metric}>
                     <span>Liq. Price:</span>
-                    <span>{formatPrice(routeResult.bestApy.preview.liquidationPrice)}</span>
+                    <span>{formatLiquidationPrice(routeResult.bestApy.preview.liquidationPrice, routeResult.bestApy.preview.priceDropBuffer)}</span>
                   </div>
                   <div className={styles.riskRow}>
                     <span>Risk:</span>
@@ -248,7 +258,7 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
                   </div>
                   <div className={styles.metric}>
                     <span>Liq. Price:</span>
-                    <span>{formatPrice(routeResult.bestMaxMultiplier.preview.liquidationPrice)}</span>
+                    <span>{formatLiquidationPrice(routeResult.bestMaxMultiplier.preview.liquidationPrice, routeResult.bestMaxMultiplier.preview.priceDropBuffer)}</span>
                   </div>
                   <div className={styles.riskRow}>
                     <span>Risk:</span>
@@ -289,7 +299,7 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
                   </div>
                   <div className={styles.metric}>
                     <span>Liq. Price:</span>
-                    <span>{formatPrice(routeResult.bestApy.preview.liquidationPrice)}</span>
+                    <span>{formatLiquidationPrice(routeResult.bestApy.preview.liquidationPrice, routeResult.bestApy.preview.priceDropBuffer)}</span>
                   </div>
                   <div className={styles.riskRow}>
                     <span>Risk:</span>

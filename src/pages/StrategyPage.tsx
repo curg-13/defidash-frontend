@@ -139,28 +139,7 @@ export function StrategyPage() {
           {renderStepContent()}
         </div>
 
-        {/* Debug Info (in dev mode only) */}
-        {import.meta.env.DEV && (
-          <div className={styles.debugInfo}>
-            <details>
-              <summary>Debug Info</summary>
-              <pre>
-                {JSON.stringify({
-                  currentStep,
-                  selectedAsset,
-                  usdValue,
-                  selectedRouteType,
-                  hasRouteData: !!selectedRouteData,
-                  canProceedToStep2,
-                  canProceedToStep3,
-                  isConnected: !!account,
-                }, (key, value) =>
-                  typeof value === 'bigint' ? value.toString() : value
-                , 2)}
-              </pre>
-            </details>
-          </div>
-        )}
+
       </section>
     </main>
   );
