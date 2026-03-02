@@ -39,6 +39,7 @@ export function useDefiDash() {
   const suiClient = useSuiClient();
   const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
   const sdkRef = useRef<DefiDashSDK | null>(null);
+  const readOnlySDKRef = useRef<DefiDashSDK | null>(null);
 
   // Initialize SDK (lazy) - Updated for v0.1.4
   const getSDK = useCallback(async () => {
@@ -49,6 +50,16 @@ export function useDefiDash() {
     }
     return sdkRef.current;
   }, [account, suiClient]);
+
+  // Initialize read-only SDK for price fetching without wallet connection
+  const getReadOnlySDK = useCallback(async () => {
+    if (!readOnlySDKRef.current) {
+      // Use zero address for read-only operations
+      const readOnlyAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
+      readOnlySDKRef.current = await DefiDashSDK.create(suiClient as any, readOnlyAddress);
+    }
+    return readOnlySDKRef.current;
+  }, [suiClient]);
 
   // Open Leverage Position
   const openLeverage = useCallback(
@@ -189,9 +200,10 @@ export function useDefiDash() {
   }, [getSDK]);
 
   const getTokenPrice = useCallback(async (asset: string) => {
-    const sdk = await getSDK();
+    // Use read-only SDK if wallet is not connected, otherwise use regular SDK
+    const sdk = account?.address ? await getSDK() : await getReadOnlySDK();
     return sdk.getTokenPrice(asset);
-  }, [getSDK]);
+  }, [account, getSDK, getReadOnlySDK]);
 
   return {
     isConnected: !!account?.address,

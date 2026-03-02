@@ -29,7 +29,7 @@ export function AssetSelector({ selectedAsset, onAssetSelect }: AssetSelectorPro
       const priceResults = await Promise.all(pricePromises);
       return Object.fromEntries(priceResults);
     },
-    enabled: isConnected,
+    enabled: true,
     staleTime: 30_000, // 30 seconds
   });
 

@@ -130,7 +130,7 @@ export function StrategyPage() {
         {/* Connection Check */}
         {!account && (
           <div className={styles.connectionWarning}>
-            <p>⚠️ Connect your wallet to get live prices and execute transactions</p>
+            <p>⚠️ Connect your wallet to execute transactions</p>
           </div>
         )}
 
