@@ -90,9 +90,10 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
   };
 
   const formatMultiplier = (mult: number) => `${mult.toFixed(2)}x`;
+  // SDK returns APYs as decimals (0.0274 = 2.74%) → need × 100
   const formatApy = (apy: number) => {
     const sign = apy >= 0 ? '+' : '';
-    return `${sign}${apy.toFixed(2)}%`;
+    return `${sign}${(apy * 100).toFixed(2)}%`;
   };
   
   const formatPrice = (price: number) => `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
