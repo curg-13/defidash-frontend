@@ -83,14 +83,16 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
       return;
     }
 
-    onUsdValueChange(maxUsdValue.toString());
+    // Round to 2 decimal places
+    const roundedMaxUsd = Math.floor(maxUsdValue * 100) / 100;
+    onUsdValueChange(roundedMaxUsd.toString());
     setMaxButtonClicked(true);
   };
 
   const formatMultiplier = (mult: number) => `${mult.toFixed(2)}x`;
   const formatApy = (apy: number) => {
     const sign = apy >= 0 ? '+' : '';
-    return `${sign}${(apy * 100).toFixed(2)}%`;
+    return `${sign}${apy.toFixed(2)}%`;
   };
   
   const formatPrice = (price: number) => `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -99,7 +101,7 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
     <>
       {formatPrice(price)}{' '}
       <span style={{ color: '#ff4444', fontWeight: 500 }}>
-        (-{(priceDropBuffer * 100).toFixed(1)}%)
+        (-{priceDropBuffer.toFixed(1)}%)
       </span>
     </>
   );

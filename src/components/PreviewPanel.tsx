@@ -66,14 +66,14 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
 
   const formatPercent = (value: number, showSign = true) => {
     const sign = showSign && value >= 0 ? '+' : '';
-    return `${sign}${(value * 100).toFixed(2)}%`;
+    return `${sign}${value.toFixed(2)}%`;
   };
 
   const formatLiquidationPrice = (price: number, priceDropBuffer: number) => (
     <>
       {formatCurrency(price)}{' '}
       <span style={{ color: '#ff4444', fontWeight: 500 }}>
-        (-{(priceDropBuffer * 100).toFixed(1)}%)
+        (-{priceDropBuffer.toFixed(1)}%)
       </span>
     </>
   );
