@@ -1,71 +1,151 @@
 .container {
-  max-width: 820px;
+  max-width: 900px;
   margin: 0 auto;
   width: 100%;
+  padding: 0 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
 }
 
 .title {
   margin-bottom: 12px;
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(45deg, #6cf, #4caf50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.description {
-  margin-bottom: 20px;
+.subtitle {
   color: var(--text-secondary);
+  font-size: 18px;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
 }
 
-.selectorGroup {
+.connectionWarning {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 32px;
+  text-align: center;
+  color: #ffc107;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stepContent {
+  min-height: 400px;
   display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
-.protocolGroup {
+.stepActions {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 32px;
+  padding: 20px 0;
 }
 
-.tokenButton {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #333;
+.backButton {
   background: transparent;
-  color: var(--text-primary);
+  border: 2px solid #333;
+  color: var(--text-secondary);
+  padding: 12px 24px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
 }
 
-.tokenButtonActive {
-  border: 1px solid #6cf;
-  background: rgba(108, 190, 255, 0.12);
-}
-
-.tokenIcon {
-  border-radius: 50%;
-}
-
-.protocolButton {
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid #333;
-  background: transparent;
+.backButton:hover {
+  border-color: #555;
   color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.protocolButtonActive {
-  border: 1px solid #6cf;
-  background: rgba(108, 190, 255, 0.12);
+.debugInfo {
+  margin-top: 40px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid #333;
+  border-radius: 8px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 
-.pendingText {
-  margin-top: 12px;
+.debugInfo summary {
   color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.debugInfo pre {
+  color: var(--text-primary);
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0;
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 10px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .subtitle {
+    font-size: 16px;
+  }
+  
+  .header {
+    margin-bottom: 30px;
+  }
+  
+  .stepContent {
+    min-height: 350px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 20px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+  }
+  
+  .stepContent {
+    min-height: 300px;
+  }
+}
+
+/* Step transition animations */
+.stepContent > * {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

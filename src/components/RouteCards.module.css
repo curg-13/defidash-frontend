@@ -1,0 +1,361 @@
+.container {
+  padding: 20px 0;
+}
+
+.title {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.description {
+  margin-bottom: 32px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  text-align: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Amount Input Section */
+.amountSection {
+  max-width: 400px;
+  margin: 0 auto 32px auto;
+}
+
+.amountLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.balance {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.amountInput {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-secondary);
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.dollarSign {
+  color: var(--text-secondary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.amountInput:focus-within {
+  border-color: #6cf;
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+}
+
+.inputSuffix {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.maxButton {
+  background: rgba(108, 190, 255, 0.1);
+  border: 1px solid #6cf;
+  color: #6cf;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.maxButton:hover {
+  background: rgba(108, 190, 255, 0.2);
+}
+
+.assetSymbol {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.helperText {
+  margin-top: 8px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Loading State */
+.loadingState {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #333;
+  border-top: 3px solid #6cf;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error State */
+.errorState {
+  text-align: center;
+  padding: 20px;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+/* Route Section */
+.routeSection {
+  margin-top: 32px;
+}
+
+.singleRouteContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.routeOptions {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.routeCard {
+  background: var(--bg-secondary);
+  border: 2px solid #333;
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 280px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.routeCard:hover {
+  border-color: #555;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.routeCardSelected {
+  border-color: #6cf;
+  background: rgba(108, 190, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(108, 190, 255, 0.15);
+}
+
+.recommended::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #6cf, #4caf50);
+  border-radius: 16px;
+  z-index: -1;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { opacity: 0.5; }
+  to { opacity: 0.8; }
+}
+
+.recommendedBadge {
+  position: absolute;
+  top: -8px;
+  right: 16px;
+  background: linear-gradient(45deg, #6cf, #4caf50);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+.routeHeader {
+  margin-bottom: 20px;
+}
+
+.routeTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.routeIcon {
+  font-size: 20px;
+}
+
+.routeProtocol {
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-transform: capitalize;
+}
+
+.routeMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.metric span:first-child {
+  color: var(--text-secondary);
+}
+
+.metric span:last-child {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.positive {
+  color: #4caf50;
+}
+
+.negative {
+  color: #ff6b6b;
+}
+
+.riskRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.riskRow > span:first-child {
+  color: var(--text-secondary);
+}
+
+.riskIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.riskBars {
+  display: flex;
+  gap: 2px;
+  align-items: end;
+}
+
+.riskBar {
+  width: 3px;
+  height: 12px;
+  background: #333;
+  border-radius: 1.5px;
+  transition: background-color 0.2s ease;
+}
+
+.riskBarActive {
+  background: #ff6b6b;
+}
+
+.riskLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.warningBox {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+  color: #ffc107;
+  font-size: 14px;
+}
+
+.warningBox p {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.warningBox ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.warningBox li {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 768px) {
+  .routeOptions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .routeCard {
+    max-width: 100%;
+    min-width: 280px;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .description {
+    font-size: 14px;
+  }
+}
