@@ -1,0 +1,259 @@
+.container {
+  padding: 20px 0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.title {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.description {
+  margin-bottom: 32px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  text-align: center;
+}
+
+.previewCard {
+  background: var(--bg-secondary);
+  border: 2px solid #333;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.cardHeader {
+  background: rgba(108, 190, 255, 0.1);
+  padding: 20px 24px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cardIcon {
+  font-size: 24px;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.previewContent {
+  padding: 24px;
+}
+
+.section {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.subRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0 4px 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.label {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.subLabel {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.value {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.subValue {
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.positive {
+  color: #4caf50 !important;
+}
+
+.negative {
+  color: #ff6b6b !important;
+}
+
+.divider {
+  height: 1px;
+  background: #333;
+  margin: 20px 0;
+}
+
+.actions {
+  padding: 20px 24px;
+  border-top: 1px solid #333;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.backButton {
+  background: transparent;
+  border: 2px solid #333;
+  color: var(--text-secondary);
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.backButton:hover:not(:disabled) {
+  border-color: #555;
+  color: var(--text-primary);
+}
+
+.backButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.executeButton {
+  background: linear-gradient(45deg, #6cf, #4caf50);
+  border: none;
+  color: white;
+  padding: 12px 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  flex: 1;
+  max-width: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.executeButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(108, 190, 255, 0.3);
+}
+
+.executeButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.executeButton:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.errorBox {
+  margin: 16px 24px 0 24px;
+  padding: 12px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  color: #ff6b6b;
+  font-size: 14px;
+  text-align: center;
+}
+
+.successToast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #4caf50;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
+  font-weight: 600;
+  z-index: 1000;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 10px;
+    max-width: 100%;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .description {
+    font-size: 14px;
+  }
+  
+  .cardHeader {
+    padding: 16px 20px;
+  }
+  
+  .previewContent {
+    padding: 20px;
+  }
+  
+  .actions {
+    padding: 16px 20px;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .executeButton {
+    max-width: none;
+  }
+  
+  .successToast {
+    right: 10px;
+    left: 10px;
+    font-size: 14px;
+  }
+}

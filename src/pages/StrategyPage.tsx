@@ -1,181 +1,146 @@
-import { useMemo, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useCurrentAccount } from '@mysten/dapp-kit';
 import appStyles from '../App.module.css';
 import styles from './StrategyPage.module.css';
-import { LoopingStrategy } from '../components/LoopingStrategy';
-import { protocols, SUPPORTED_TOKENS } from '../config/protocols';
-import {
-  useLeverageTransaction,
-  useDeleverageTransaction,
-  LendingProtocol,
-} from '../hooks/useDefiDash';
-import { Toast, ToastMessage } from '../components/Toast';
+import { WizardStepper } from '../components/WizardStepper';
+import { AssetSelector } from '../components/AssetSelector';
+import { RouteCards } from '../components/RouteCards';
+import { PreviewPanel } from '../components/PreviewPanel';
+import type { LeverageRoute } from 'defi-dash-sdk';
 
-// Defaults are indicative only; real APYs should be fetched from protocol later
-const DEFAULT_SUPPLY_APY = 0.08; // 8% supply on SUI
-const DEFAULT_BORROW_APY = 0.04; // 4% borrow on USDC
-const DEFAULT_MAX_LTV = 0.6; // conservative buffer
-
-type ProtocolId = 'navi' | 'suilend';
+type WizardStep = 1 | 2 | 3;
+type RouteType = 'maxLeverage' | 'bestApy';
 
 export function StrategyPage() {
-  const [selectedProtocol, setSelectedProtocol] = useState<ProtocolId>('navi');
-  const [selectedToken, setSelectedToken] = useState<string>('SUI');
-  const { mutateAsync: flashloanLoop, isPending: isPendingLoop } = useLeverageTransaction();
-  const { mutateAsync: deleverage, isPending: isPendingClose } = useDeleverageTransaction();
-  const [toast, setToast] = useState<ToastMessage | null>(null);
-  const queryClient = useQueryClient();
+  const account = useCurrentAccount();
+  
+  // Wizard state
+  const [currentStep, setCurrentStep] = useState<WizardStep>(1);
+  const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
+  const [usdValue, setUsdValue] = useState<string>('');
+  const [selectedRouteType, setSelectedRouteType] = useState<RouteType | null>(null);
+  const [selectedRouteData, setSelectedRouteData] = useState<LeverageRoute | null>(null);
 
-  const protocolOptions = useMemo(
-    () =>
-      protocols
-        .filter((p) => p.id === 'navi' || p.id === 'suilend')
-        .map((p) => ({
-          id: p.id as ProtocolId,
-          name: p.name,
-        })),
-    []
-  );
+  const handleAssetSelect = (asset: string) => {
+    setSelectedAsset(asset);
+    // Auto-advance to step 2
+    setTimeout(() => {
+      setCurrentStep(2);
+    }, 300);
+  };
 
-  const tokenOptions = useMemo(
-    () => Object.values(SUPPORTED_TOKENS).filter((t) => t.symbol === 'SUI' || t.symbol === 'LBTC'),
-    []
-  );
+  const handleRouteSelect = (routeType: RouteType, routeData: LeverageRoute) => {
+    setSelectedRouteType(routeType);
+    setSelectedRouteData(routeData);
+    // Auto-advance to step 3
+    setTimeout(() => {
+      setCurrentStep(3);
+    }, 300);
+  };
 
-  const handleExecute = async ({ amount, leverage }: { amount: string; leverage: number }) => {
-    setToast(null);
-    console.log('[StrategyPage] Executing Open Leverage:', {
-      token: selectedToken,
-      protocol: selectedProtocol,
-      amount,
-      leverage,
-    });
-
-    try {
-      if (leverage <= 1) {
-        throw new Error('Leverage must be greater than 1x to run flashloan loop.');
-      }
-
-      // Map protocol string to Enum
-      const protocolEnum =
-        selectedProtocol === 'navi' ? LendingProtocol.Navi : LendingProtocol.Suilend;
-
-      const digest = await flashloanLoop({
-        depositAmount: amount,
-        leverage,
-        symbol: selectedToken,
-        protocol: protocolEnum,
-      });
-
-      console.log('[StrategyPage] Open Success:', digest);
-      setToast({ type: 'success', message: `Position Opened! Digest: ${digest.slice(0, 10)}...` });
-
-      // Wait for RPC indexing
-      setTimeout(async () => {
-        await queryClient.invalidateQueries({ queryKey: ['balance'] });
-        // Also invalidate portfolio/positions if we had them
-        await queryClient.invalidateQueries({ queryKey: ['portfolio'] });
-      }, 2000);
-    } catch (err: unknown) {
-      console.error('[StrategyPage] Open Failed:', err);
-      const msg = err instanceof Error ? err.message : 'Transaction failed';
-      setToast({ type: 'error', message: msg });
+  const handleBack = () => {
+    if (currentStep === 3) {
+      setCurrentStep(2);
+      setSelectedRouteType(null);
+      setSelectedRouteData(null);
+    } else if (currentStep === 2) {
+      setCurrentStep(1);
+      setSelectedAsset(null);
+      setUsdValue('');
     }
   };
 
-  const handleClose = async () => {
-    setToast(null);
-    console.log('[StrategyPage] Executing Close Position:', {
-      protocol: selectedProtocol,
-    });
+  const canProceedToStep2 = selectedAsset !== null;
+  const canProceedToStep3 = canProceedToStep2 && usdValue && parseFloat(usdValue) > 0 && selectedRouteType && selectedRouteData;
 
-    try {
-      const protocolEnum =
-        selectedProtocol === 'navi' ? LendingProtocol.Navi : LendingProtocol.Suilend;
-      const digest = await deleverage({ protocol: protocolEnum });
-
-      console.log('[StrategyPage] Close Success:', digest);
-      setToast({ type: 'success', message: `Position Closed! Digest: ${digest.slice(0, 10)}...` });
-
-      // Wait for RPC indexing
-      setTimeout(async () => {
-        await queryClient.invalidateQueries({ queryKey: ['balance'] });
-        await queryClient.invalidateQueries({ queryKey: ['portfolio'] });
-      }, 2000);
-    } catch (err: unknown) {
-      console.error('[StrategyPage] Close Failed:', err);
-      const msg = err instanceof Error ? err.message : 'Transaction failed';
-      setToast({ type: 'error', message: msg });
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <AssetSelector
+            selectedAsset={selectedAsset}
+            onAssetSelect={handleAssetSelect}
+          />
+        );
+        
+      case 2:
+        if (!selectedAsset) {
+          // Shouldn't happen, but fallback to step 1
+          setCurrentStep(1);
+          return null;
+        }
+        
+        return (
+          <div>
+            <RouteCards
+              selectedAsset={selectedAsset}
+              usdValue={usdValue}
+              onUsdValueChange={setUsdValue}
+              selectedRoute={selectedRouteType}
+              onRouteSelect={handleRouteSelect}
+            />
+            {/* Back button for step 2 */}
+            <div className={styles.stepActions}>
+              <button
+                type="button"
+                onClick={handleBack}
+                className={styles.backButton}
+              >
+                ◀ Back
+              </button>
+            </div>
+          </div>
+        );
+        
+      case 3:
+        if (!selectedAsset || !usdValue || !selectedRouteData) {
+          // Shouldn't happen, but fallback
+          setCurrentStep(2);
+          return null;
+        }
+        
+        return (
+          <PreviewPanel
+            selectedAsset={selectedAsset}
+            usdValue={usdValue}
+            routeData={selectedRouteData}
+            onBack={handleBack}
+          />
+        );
+        
+      default:
+        return null;
     }
   };
 
   return (
     <main className={appStyles.content}>
       <section className={styles.container}>
-        <h2 className={styles.title}>{selectedToken} → USDC Leverage Loop</h2>
-        <p className={styles.description}>
-          Deposit {selectedToken}, borrow USDC, swap back to {selectedToken}, and repeat using
-          Scallop flash loans. Select a protocol below, adjust leverage, then execute with your
-          connected Sui wallet.
-        </p>
-
-        {/* Token Selector */}
-        <div className={styles.selectorGroup}>
-          {tokenOptions.map((t) => (
-            <button
-              key={t.symbol}
-              type="button"
-              onClick={() => setSelectedToken(t.symbol)}
-              className={`${styles.tokenButton} ${
-                selectedToken === t.symbol ? styles.tokenButtonActive : ''
-              }`}
-            >
-              {t.icon && (
-                <img
-                  src={t.icon}
-                  alt={t.symbol}
-                  width={16}
-                  height={16}
-                  className={styles.tokenIcon}
-                />
-              )}
-              {t.name}
-            </button>
-          ))}
-        </div>
-
-        <div className={styles.protocolGroup}>
-          {protocolOptions.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              onClick={() => setSelectedProtocol(option.id)}
-              className={`${styles.protocolButton} ${
-                selectedProtocol === option.id ? styles.protocolButtonActive : ''
-              }`}
-            >
-              {option.name}
-            </button>
-          ))}
-        </div>
-
-        <LoopingStrategy
-          token={selectedToken}
-          supplyApy={DEFAULT_SUPPLY_APY}
-          borrowApy={DEFAULT_BORROW_APY}
-          maxLtv={DEFAULT_MAX_LTV}
-          chain="sui"
-          protocolId={selectedProtocol}
-          onExecute={handleExecute}
-          onClose={handleClose}
-        />
-        {(isPendingLoop || isPendingClose) && (
-          <p className={styles.pendingText}>
-            {isPendingLoop ? 'Submitting Open Transaction...' : 'Submitting Close Transaction...'}
+        {/* Page Header */}
+        <div className={styles.header}>
+          <h1 className={styles.title}>Leverage Wizard</h1>
+          <p className={styles.subtitle}>
+            Create leveraged positions in 3 simple steps. We'll find the best routes and rates for you.
           </p>
+        </div>
+
+        {/* Wizard Stepper */}
+        <WizardStepper currentStep={currentStep} totalSteps={3} />
+
+        {/* Connection Check */}
+        {!account && (
+          <div className={styles.connectionWarning}>
+            <p>⚠️ Connect your wallet to execute transactions</p>
+          </div>
         )}
+
+        {/* Step Content */}
+        <div className={styles.stepContent}>
+          {renderStepContent()}
+        </div>
+
+
       </section>
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </main>
   );
 }

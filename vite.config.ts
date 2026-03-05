@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import path from 'path';
 
 export default defineConfig({
   plugins: [
@@ -17,12 +18,16 @@ export default defineConfig({
   resolve: {
     alias: {
       process: 'process/browser',
+      '@scallop-io/sui-scallop-sdk': path.resolve(
+        __dirname,
+        'node_modules/@scallop-io/sui-scallop-sdk/dist/index.js'
+      ),
     },
   },
   define: {
     'process.env': {},
   },
   optimizeDeps: {
-    include: ['defi-dash-sdk'],
+    include: ['defi-dash-sdk', 'poseidon-lite'],
   },
 });
