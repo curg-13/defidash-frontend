@@ -64,16 +64,20 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
   const formatCurrency = (value: number) => 
     `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+  // SDK returns APYs as decimals (0.0274 = 2.74%) → need × 100
   const formatPercent = (value: number, showSign = true) => {
     const sign = showSign && value >= 0 ? '+' : '';
     return `${sign}${(value * 100).toFixed(2)}%`;
   };
 
+  // SDK returns these already as percentages (13.7 = 13.7%) → NO × 100
+  const formatPctDirect = (value: number) => `${value.toFixed(2)}%`;
+
   const formatLiquidationPrice = (price: number, priceDropBuffer: number) => (
     <>
       {formatCurrency(price)}{' '}
       <span style={{ color: '#ff4444', fontWeight: 500 }}>
-        (-{(priceDropBuffer * 100).toFixed(1)}%)
+        (-{priceDropBuffer.toFixed(1)}%)
       </span>
     </>
   );
@@ -205,7 +209,7 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
           <div className={styles.section}>
             <div className={styles.row}>
               <span className={styles.label}>Swap Slippage:</span>
-              <span className={styles.value}>{formatPercent(preview.swapSlippagePct, false)}</span>
+              <span className={styles.value}>{formatPctDirect(preview.swapSlippagePct)}</span>
             </div>
             <div className={styles.row}>
               <span className={styles.label}>Flash Loan Fee:</span>

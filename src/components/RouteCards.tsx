@@ -83,11 +83,14 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
       return;
     }
 
-    onUsdValueChange(maxUsdValue.toString());
+    // Round to 2 decimal places
+    const roundedMaxUsd = Math.floor(maxUsdValue * 100) / 100;
+    onUsdValueChange(roundedMaxUsd.toString());
     setMaxButtonClicked(true);
   };
 
   const formatMultiplier = (mult: number) => `${mult.toFixed(2)}x`;
+  // SDK returns APYs as decimals (0.0274 = 2.74%) → need × 100
   const formatApy = (apy: number) => {
     const sign = apy >= 0 ? '+' : '';
     return `${sign}${(apy * 100).toFixed(2)}%`;
@@ -99,7 +102,7 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
     <>
       {formatPrice(price)}{' '}
       <span style={{ color: '#ff4444', fontWeight: 500 }}>
-        (-{(priceDropBuffer * 100).toFixed(1)}%)
+        (-{priceDropBuffer.toFixed(1)}%)
       </span>
     </>
   );
