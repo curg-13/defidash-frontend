@@ -6,6 +6,7 @@ import { WizardStepper } from '../components/WizardStepper';
 import { AssetSelector } from '../components/AssetSelector';
 import { RouteCards } from '../components/RouteCards';
 import { PreviewPanel } from '../components/PreviewPanel';
+import { protocols } from '../config/protocols';
 import type { LeverageRoute } from 'defi-dash-sdk';
 
 type WizardStep = 1 | 2 | 3;
@@ -13,7 +14,7 @@ type RouteType = 'maxLeverage' | 'bestApy';
 
 export function StrategyPage() {
   const account = useCurrentAccount();
-  
+
   // Wizard state
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
@@ -50,26 +51,20 @@ export function StrategyPage() {
     }
   };
 
-  const canProceedToStep2 = selectedAsset !== null;
-  const canProceedToStep3 = canProceedToStep2 && usdValue && parseFloat(usdValue) > 0 && selectedRouteType && selectedRouteData;
+  // Navigation is auto-handled by step component state
 
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return (
-          <AssetSelector
-            selectedAsset={selectedAsset}
-            onAssetSelect={handleAssetSelect}
-          />
-        );
-        
+        return <AssetSelector selectedAsset={selectedAsset} onAssetSelect={handleAssetSelect} />;
+
       case 2:
         if (!selectedAsset) {
           // Shouldn't happen, but fallback to step 1
           setCurrentStep(1);
           return null;
         }
-        
+
         return (
           <div>
             <RouteCards
@@ -81,24 +76,20 @@ export function StrategyPage() {
             />
             {/* Back button for step 2 */}
             <div className={styles.stepActions}>
-              <button
-                type="button"
-                onClick={handleBack}
-                className={styles.backButton}
-              >
+              <button type="button" onClick={handleBack} className={styles.backButton}>
                 ◀ Back
               </button>
             </div>
           </div>
         );
-        
+
       case 3:
         if (!selectedAsset || !usdValue || !selectedRouteData) {
           // Shouldn't happen, but fallback
           setCurrentStep(2);
           return null;
         }
-        
+
         return (
           <PreviewPanel
             selectedAsset={selectedAsset}
@@ -107,7 +98,7 @@ export function StrategyPage() {
             onBack={handleBack}
           />
         );
-        
+
       default:
         return null;
     }
@@ -120,8 +111,28 @@ export function StrategyPage() {
         <div className={styles.header}>
           <h1 className={styles.title}>Leverage Wizard</h1>
           <p className={styles.subtitle}>
-            Create leveraged positions in 3 simple steps. We'll find the best routes and rates for you.
+            Create leveraged positions in 3 simple steps. We&apos;ll find the best routes and rates
+            for you.
           </p>
+        </div>
+
+        {/* Supported Protocols */}
+        <div className={styles.protocolSection}>
+          <span className={styles.protocolLabel}>Powered by</span>
+          <div className={styles.protocolRow}>
+            {protocols.map((protocol) => (
+              <a
+                key={protocol.id}
+                href={protocol.siteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.protocolBadge}
+              >
+                <img src={protocol.logo} alt={protocol.name} className={styles.protocolLogo} />
+                <span>{protocol.name}</span>
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Wizard Stepper */}
@@ -135,11 +146,7 @@ export function StrategyPage() {
         )}
 
         {/* Step Content */}
-        <div className={styles.stepContent}>
-          {renderStepContent()}
-        </div>
-
-
+        <div className={styles.stepContent}>{renderStepContent()}</div>
       </section>
     </main>
   );

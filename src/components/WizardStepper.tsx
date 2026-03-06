@@ -12,7 +12,7 @@ export function WizardStepper({ currentStep, totalSteps }: WizardStepperProps) {
         const stepNumber = index + 1;
         const isActive = stepNumber === currentStep;
         const isCompleted = stepNumber < currentStep;
-        
+
         return (
           <div key={stepNumber} className={styles.stepContainer}>
             <div
@@ -24,9 +24,7 @@ export function WizardStepper({ currentStep, totalSteps }: WizardStepperProps) {
             </div>
             {stepNumber < totalSteps && (
               <div
-                className={`${styles.connector} ${
-                  isCompleted ? styles.connectorCompleted : ''
-                }`}
+                className={`${styles.connector} ${isCompleted ? styles.connectorCompleted : ''}`}
               />
             )}
           </div>

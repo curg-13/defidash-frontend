@@ -70,3 +70,21 @@ export const protocols: Protocol[] = [
 export const protocolsById = Object.fromEntries(
   protocols.map((protocol) => [protocol.id, protocol])
 );
+
+// Asset-Protocol Support Matrix
+// Defines which protocols support each asset
+export const ASSET_PROTOCOL_SUPPORT: Record<string, string[]> = {
+  SUI: ['navi', 'suilend', 'scallop'],
+  XBTC: ['navi', 'suilend', 'scallop'],
+  LBTC: ['navi', 'suilend'], // NOT supported by Scallop
+  USDC: ['navi', 'suilend', 'scallop'],
+};
+
+export function getProtocolsForAsset(asset: string): string[] {
+  return ASSET_PROTOCOL_SUPPORT[asset] || [];
+}
+
+export function isAssetSupportedByProtocol(asset: string, protocolId: string): boolean {
+  const supportedProtocols = ASSET_PROTOCOL_SUPPORT[asset] || [];
+  return supportedProtocols.includes(protocolId);
+}

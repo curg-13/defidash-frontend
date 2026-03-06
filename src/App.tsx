@@ -1,17 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ConnectButton } from '@mysten/dapp-kit';
 import styles from './App.module.css';
 
-import { ChainSelect, type ChainOption } from './components/ChainSelect';
 import { Navigation } from './components/Navigation';
+import { WalletButton } from './components/WalletButton';
+import { Footer } from './components/Footer';
 import { StrategyPage } from './pages/StrategyPage';
 import { PortfolioPage } from './pages/PortfolioPage';
-import { DevPage } from './pages/DevPage';
-import { chainIcons } from './assets/chains';
+import logoImage from './assets/services/logo_defidash_small.png';
 
 function App() {
-  const chainOptions: ChainOption[] = [{ id: 'sui', label: 'Sui', icon: chainIcons.sui }];
-
   return (
     <BrowserRouter>
       <div className={styles.app}>
@@ -19,13 +16,12 @@ function App() {
           <div className={styles.headerInner}>
             <div className={styles.titleGroup}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <h1 className={styles.title}>DeFi Dashboard</h1>
+                <img src={logoImage} alt="DefiDash" className={styles.logo} />
                 <Navigation />
               </div>
             </div>
             <div className={styles.headerActions}>
-              <ChainSelect options={chainOptions} value="sui" onChange={() => {}} />
-              <ConnectButton className={styles.connectButton} />
+              <WalletButton />
             </div>
           </div>
         </header>
@@ -34,8 +30,9 @@ function App() {
           <Route path="/" element={<Navigate to="/strategy" replace />} />
           <Route path="/strategy" element={<StrategyPage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
-          <Route path="/dev" element={<DevPage />} />
         </Routes>
+
+        <Footer />
       </div>
     </BrowserRouter>
   );

@@ -1,0 +1,157 @@
+.container {
+  position: relative;
+}
+
+.connectButton {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-app);
+  padding: 10px 20px;
+  transition: all 0.2s ease;
+  background: var(--bg-panel);
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.connectButton:hover {
+  color: var(--bg-app);
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 15px rgba(204, 255, 0, 0.4);
+}
+
+.connectedButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  border: 1px solid var(--accent-primary);
+  padding: 8px 14px;
+  background: rgba(204, 255, 0, 0.1);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.connectedButton:hover {
+  background: rgba(204, 255, 0, 0.2);
+  box-shadow: 0 0 10px rgba(204, 255, 0, 0.2);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.address {
+  font-weight: 500;
+}
+
+.arrow {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-app);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  animation: slideDown 0.15s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownHeader {
+  padding: 12px 16px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-app);
+}
+
+.dropdownItem,
+.walletOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-align: left;
+}
+
+.dropdownItem:hover,
+.walletOption:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.itemIcon {
+  font-size: 14px;
+}
+
+.walletIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.disconnectItem {
+  color: #ff6b6b;
+  border-top: 1px solid var(--border-app);
+}
+
+.disconnectItem:hover {
+  background: rgba(255, 107, 107, 0.1);
+}
+
+@media (max-width: 480px) {
+  .connectButton,
+  .connectedButton {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .dropdown {
+    min-width: 180px;
+  }
+}

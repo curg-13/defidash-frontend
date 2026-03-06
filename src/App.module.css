@@ -42,6 +42,12 @@
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
+.logo {
+  height: 36px;
+  width: auto;
+  margin-right: var(--space-md);
+}
+
 .headerActions {
   display: flex;
   align-items: center;

@@ -13,7 +13,13 @@ interface RouteCardsProps {
   onRouteSelect: (route: 'maxLeverage' | 'bestApy', routeData: LeverageRoute) => void;
 }
 
-export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selectedRoute, onRouteSelect }: RouteCardsProps) {
+export function RouteCards({
+  selectedAsset,
+  usdValue,
+  onUsdValueChange,
+  selectedRoute,
+  onRouteSelect,
+}: RouteCardsProps) {
   const { findBestLeverageRoute, getTokenBalance, getTokenPrice, isConnected } = useDefiDash();
   const [maxButtonClicked, setMaxButtonClicked] = useState(false);
 
@@ -35,9 +41,13 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
   });
 
   // Find best routes when USD value is entered
-  const { data: routeResult, isLoading: isLoadingRoutes, error: routeError } = useQuery({
+  const {
+    data: routeResult,
+    isLoading: isLoadingRoutes,
+    error: routeError,
+  } = useQuery({
     queryKey: ['bestRoute', selectedAsset, usdValue],
-    queryFn: (): Promise<LeverageRouteResult> => 
+    queryFn: (): Promise<LeverageRouteResult> =>
       findBestLeverageRoute({
         depositAsset: selectedAsset,
         depositValueUsd: parseFloat(usdValue),
@@ -54,7 +64,10 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
   const formatBalanceUsd = (bal: string) => {
     const balanceNum = parseFloat(bal) / Math.pow(10, tokenInfo?.decimals || 9);
     const balanceUsd = balanceNum * tokenPrice;
-    return balanceUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return balanceUsd.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   };
 
   const getTokenEquivalent = (usd: string) => {
@@ -76,10 +89,14 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
     const gasBufferPercentage = 0.05; // 5% buffer
     const maxTokenAmount = Math.max(0, balanceNum * (1 - gasBufferPercentage));
     const maxUsdValue = maxTokenAmount * tokenPrice;
-    
+
     // Ensure we have a valid USD value
     if (maxUsdValue <= 0 || isNaN(maxUsdValue)) {
-      console.warn('MAX button: Invalid USD value calculated', { maxTokenAmount, tokenPrice, maxUsdValue });
+      console.warn('MAX button: Invalid USD value calculated', {
+        maxTokenAmount,
+        tokenPrice,
+        maxUsdValue,
+      });
       return;
     }
 
@@ -95,19 +112,18 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
     const sign = apy >= 0 ? '+' : '';
     return `${sign}${(apy * 100).toFixed(2)}%`;
   };
-  
-  const formatPrice = (price: number) => `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  
+
+  const formatPrice = (price: number) =>
+    `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
   const formatLiquidationPrice = (price: number, priceDropBuffer: number) => (
     <>
       {formatPrice(price)}{' '}
-      <span style={{ color: '#ff4444', fontWeight: 500 }}>
-        (-{priceDropBuffer.toFixed(1)}%)
-      </span>
+      <span style={{ color: '#ff4444', fontWeight: 500 }}>(-{priceDropBuffer.toFixed(1)}%)</span>
     </>
   );
-  
-  const formatProtocolName = (protocol: string) => 
+
+  const formatProtocolName = (protocol: string) =>
     protocol.charAt(0).toUpperCase() + protocol.slice(1).toLowerCase();
 
   const getRiskLevel = (mult: number) => {
@@ -128,14 +144,14 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
   );
 
   // Check if both routes are the same protocol
-  const isSameProtocol = routeResult && 
-    routeResult.bestMaxMultiplier.protocol === routeResult.bestApy.protocol;
+  const isSameProtocol =
+    routeResult && routeResult.bestMaxMultiplier.protocol === routeResult.bestApy.protocol;
 
   return (
     <div className={styles.container}>
       <h3 className={styles.title}>Enter Value & Find Best Route</h3>
       <p className={styles.description}>
-        Enter the USD value you want to leverage, and we'll find the best protocols for you.
+        Enter the USD value you want to leverage, and we&apos;ll find the best protocols for you.
       </p>
 
       {/* USD Value Input */}
@@ -212,19 +228,30 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
                   </div>
                   <div className={styles.metric}>
                     <span>Net APY:</span>
-                    <span className={routeResult.bestApy.preview.netApy >= 0 ? styles.positive : styles.negative}>
+                    <span
+                      className={
+                        routeResult.bestApy.preview.netApy >= 0 ? styles.positive : styles.negative
+                      }
+                    >
                       {formatApy(routeResult.bestApy.preview.netApy)}
                     </span>
                   </div>
                   <div className={styles.metric}>
                     <span>Liq. Price:</span>
-                    <span>{formatLiquidationPrice(routeResult.bestApy.preview.liquidationPrice, routeResult.bestApy.preview.priceDropBuffer)}</span>
+                    <span>
+                      {formatLiquidationPrice(
+                        routeResult.bestApy.preview.liquidationPrice,
+                        routeResult.bestApy.preview.priceDropBuffer
+                      )}
+                    </span>
                   </div>
                   <div className={styles.riskRow}>
                     <span>Risk:</span>
                     <div className={styles.riskIndicator}>
                       {renderRiskBars(getRiskLevel(routeResult.bestApy.multiplier).bars)}
-                      <span className={styles.riskLabel}>{getRiskLevel(routeResult.bestApy.multiplier).level}</span>
+                      <span className={styles.riskLabel}>
+                        {getRiskLevel(routeResult.bestApy.multiplier).level}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -255,19 +282,32 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
                   </div>
                   <div className={styles.metric}>
                     <span>Net APY:</span>
-                    <span className={routeResult.bestMaxMultiplier.preview.netApy >= 0 ? styles.positive : styles.negative}>
+                    <span
+                      className={
+                        routeResult.bestMaxMultiplier.preview.netApy >= 0
+                          ? styles.positive
+                          : styles.negative
+                      }
+                    >
                       {formatApy(routeResult.bestMaxMultiplier.preview.netApy)}
                     </span>
                   </div>
                   <div className={styles.metric}>
                     <span>Liq. Price:</span>
-                    <span>{formatLiquidationPrice(routeResult.bestMaxMultiplier.preview.liquidationPrice, routeResult.bestMaxMultiplier.preview.priceDropBuffer)}</span>
+                    <span>
+                      {formatLiquidationPrice(
+                        routeResult.bestMaxMultiplier.preview.liquidationPrice,
+                        routeResult.bestMaxMultiplier.preview.priceDropBuffer
+                      )}
+                    </span>
                   </div>
                   <div className={styles.riskRow}>
                     <span>Risk:</span>
                     <div className={styles.riskIndicator}>
                       {renderRiskBars(getRiskLevel(routeResult.bestMaxMultiplier.multiplier).bars)}
-                      <span className={styles.riskLabel}>{getRiskLevel(routeResult.bestMaxMultiplier.multiplier).level}</span>
+                      <span className={styles.riskLabel}>
+                        {getRiskLevel(routeResult.bestMaxMultiplier.multiplier).level}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -296,19 +336,30 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
                   </div>
                   <div className={styles.metric}>
                     <span>Net APY:</span>
-                    <span className={routeResult.bestApy.preview.netApy >= 0 ? styles.positive : styles.negative}>
+                    <span
+                      className={
+                        routeResult.bestApy.preview.netApy >= 0 ? styles.positive : styles.negative
+                      }
+                    >
                       {formatApy(routeResult.bestApy.preview.netApy)}
                     </span>
                   </div>
                   <div className={styles.metric}>
                     <span>Liq. Price:</span>
-                    <span>{formatLiquidationPrice(routeResult.bestApy.preview.liquidationPrice, routeResult.bestApy.preview.priceDropBuffer)}</span>
+                    <span>
+                      {formatLiquidationPrice(
+                        routeResult.bestApy.preview.liquidationPrice,
+                        routeResult.bestApy.preview.priceDropBuffer
+                      )}
+                    </span>
                   </div>
                   <div className={styles.riskRow}>
                     <span>Risk:</span>
                     <div className={styles.riskIndicator}>
                       {renderRiskBars(getRiskLevel(routeResult.bestApy.multiplier).bars)}
-                      <span className={styles.riskLabel}>{getRiskLevel(routeResult.bestApy.multiplier).level}</span>
+                      <span className={styles.riskLabel}>
+                        {getRiskLevel(routeResult.bestApy.multiplier).level}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -322,7 +373,9 @@ export function RouteCards({ selectedAsset, usdValue, onUsdValueChange, selected
               <p>⚠️ Some protocols are currently unavailable:</p>
               <ul>
                 {routeResult.failedProtocols.map((failed: { protocol: string; error: string }) => (
-                  <li key={failed.protocol}>{failed.protocol}: {failed.error}</li>
+                  <li key={failed.protocol}>
+                    {failed.protocol}: {failed.error}
+                  </li>
                 ))}
               </ul>
             </div>

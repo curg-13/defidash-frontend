@@ -1,0 +1,155 @@
+.footer {
+  margin-top: auto;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+  border-top: 1px solid var(--border-app);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+.section {
+  margin-bottom: var(--space-xl);
+}
+
+.sectionTitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+.protocolList {
+  display: flex;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.protocolItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-app);
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.protocolItem:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.protocolLogo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.protocolName {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.strategyList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+}
+
+.strategyCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-app);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.strategyCard:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(204, 255, 0, 0.3);
+}
+
+.strategyIcon {
+  font-size: 24px;
+}
+
+.strategyInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.strategyName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.strategyApy {
+  font-size: 11px;
+  color: var(--accent-primary);
+}
+
+.bottomBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-app);
+}
+
+.copyright {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.links {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.socialLink {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.socialLink:hover {
+  color: var(--accent-primary);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-lg);
+  }
+
+  .protocolList {
+    gap: var(--space-sm);
+  }
+
+  .protocolItem {
+    padding: 8px 12px;
+  }
+
+  .protocolName {
+    font-size: 12px;
+  }
+
+  .bottomBar {
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
+  }
+}
