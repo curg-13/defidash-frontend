@@ -1,17 +1,26 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useDefiDash } from '../hooks/useDefiDash';
-import { SUPPORTED_TOKENS } from '../config/protocols';
-import type { LeverageRouteResult, LeverageRoute } from 'defi-dash-sdk';
+import { useDefiDash, LendingProtocol } from '../hooks/useDefiDash';
+import { SUPPORTED_TOKENS, ASSET_PROTOCOL_SUPPORT, protocolsById } from '../config/protocols';
+import type { LeverageRouteResult, LeverageRoute, LeveragePreview } from 'defi-dash-sdk';
 import styles from './RouteCards.module.css';
+
+type RouteType = 'maxLeverage' | 'bestApy' | 'custom';
 
 interface RouteCardsProps {
   selectedAsset: string;
   usdValue: string;
   onUsdValueChange: (usdValue: string) => void;
-  selectedRoute: 'maxLeverage' | 'bestApy' | null;
-  onRouteSelect: (route: 'maxLeverage' | 'bestApy', routeData: LeverageRoute) => void;
+  selectedRoute: RouteType | null;
+  onRouteSelect: (route: RouteType, routeData: LeverageRoute) => void;
 }
+
+// Map protocol ID to LendingProtocol enum
+const PROTOCOL_ID_TO_ENUM: Record<string, LendingProtocol> = {
+  navi: LendingProtocol.Navi,
+  suilend: LendingProtocol.Suilend,
+  scallop: LendingProtocol.Scallop,
+};
 
 export function RouteCards({
   selectedAsset,
@@ -20,10 +29,34 @@ export function RouteCards({
   selectedRoute,
   onRouteSelect,
 }: RouteCardsProps) {
-  const { findBestLeverageRoute, getTokenBalance, getTokenPrice, isConnected } = useDefiDash();
-  const [maxButtonClicked, setMaxButtonClicked] = useState(false);
+  const { findBestLeverageRoute, getTokenBalance, getTokenPrice, previewLeverage, isConnected } =
+    useDefiDash();
+
+  // Custom route state
+  const [customProtocol, setCustomProtocol] = useState<string | null>(null);
+  const [customMultiplier, setCustomMultiplier] = useState<number>(2.0);
+  const [showCustomCard, setShowCustomCard] = useState(false);
 
   const tokenInfo = SUPPORTED_TOKENS[selectedAsset as keyof typeof SUPPORTED_TOKENS];
+
+  // Get protocols supported for this asset
+  const supportedProtocols = useMemo(() => {
+    const protocolIds = ASSET_PROTOCOL_SUPPORT[selectedAsset] || [];
+    return protocolIds
+      .map((id) => ({
+        id,
+        name: protocolsById[id]?.name || id,
+        logo: protocolsById[id]?.logo,
+      }))
+      .filter((p) => PROTOCOL_ID_TO_ENUM[p.id]); // Only include protocols we can map
+  }, [selectedAsset]);
+
+  // Initialize custom protocol when supported protocols change
+  useMemo(() => {
+    if (supportedProtocols.length > 0 && !customProtocol) {
+      setCustomProtocol(supportedProtocols[0].id);
+    }
+  }, [supportedProtocols, customProtocol]);
 
   // Get wallet balance for the selected asset
   const { data: balance = '0' } = useQuery({
@@ -55,6 +88,78 @@ export function RouteCards({
     enabled: !!usdValue && parseFloat(usdValue) > 0,
     staleTime: 0, // No cache - always fetch fresh rates
   });
+
+  // Calculate deposit amount for custom preview
+  const customDepositAmount = useMemo(() => {
+    if (!usdValue || !tokenPrice || tokenPrice === 0) return '0';
+    const tokenAmount = parseFloat(usdValue) / tokenPrice;
+    return tokenAmount.toString();
+  }, [usdValue, tokenPrice]);
+
+  // Get max multiplier from the best route for the selected protocol
+  // TODO: SDK doesn't provide per-protocol max multiplier directly.
+  // Using the preview's maxMultiplier once we have a preview.
+  // PM will coordinate with SDK team for proper max multiplier API.
+  const getMaxMultiplierForProtocol = (protocolId: string): number => {
+    // Try to get from route result's allPreviews
+    if (routeResult?.allPreviews) {
+      const protocolEnum = PROTOCOL_ID_TO_ENUM[protocolId];
+      const preview = routeResult.allPreviews.find((p) => p.protocol === protocolEnum);
+      if (preview) {
+        return preview.preview.maxMultiplier;
+      }
+    }
+    // Fallback: use bestMaxMultiplier if same protocol
+    if (routeResult?.bestMaxMultiplier) {
+      const protocolEnum = PROTOCOL_ID_TO_ENUM[protocolId];
+      if (routeResult.bestMaxMultiplier.protocol === protocolEnum) {
+        return routeResult.bestMaxMultiplier.preview.maxMultiplier;
+      }
+    }
+    // Default fallback
+    return 5.0;
+  };
+
+  // Custom preview query
+  const {
+    data: customPreview,
+    isLoading: isLoadingCustomPreview,
+    error: customPreviewError,
+  } = useQuery({
+    queryKey: [
+      'customPreview',
+      selectedAsset,
+      customDepositAmount,
+      customProtocol,
+      customMultiplier,
+    ],
+    queryFn: async (): Promise<LeveragePreview> => {
+      if (!customProtocol) throw new Error('No protocol selected');
+      const protocolEnum = PROTOCOL_ID_TO_ENUM[customProtocol];
+      if (!protocolEnum) throw new Error('Invalid protocol');
+
+      return previewLeverage({
+        protocol: protocolEnum,
+        depositAsset: selectedAsset,
+        depositAmount: customDepositAmount,
+        multiplier: customMultiplier,
+      });
+    },
+    enabled:
+      showCustomCard &&
+      !!customProtocol &&
+      !!customDepositAmount &&
+      parseFloat(customDepositAmount) > 0 &&
+      customMultiplier >= 1.1,
+    staleTime: 0,
+    retry: false,
+  });
+
+  // Get current max multiplier for the selected custom protocol
+  const currentMaxMultiplier = customProtocol ? getMaxMultiplierForProtocol(customProtocol) : 5.0;
+
+  // Validation: check if multiplier exceeds max
+  const isMultiplierExceeded = customMultiplier > currentMaxMultiplier;
 
   const formatBalance = (bal: string) => {
     const balanceNum = parseFloat(bal) / Math.pow(10, tokenInfo?.decimals || 9);
@@ -103,7 +208,6 @@ export function RouteCards({
     // Round to 2 decimal places
     const roundedMaxUsd = Math.floor(maxUsdValue * 100) / 100;
     onUsdValueChange(roundedMaxUsd.toString());
-    setMaxButtonClicked(true);
   };
 
   const formatMultiplier = (mult: number) => `${mult.toFixed(2)}x`;
@@ -364,6 +468,152 @@ export function RouteCards({
                   </div>
                 </div>
               </button>
+            </div>
+          )}
+
+          {/* Custom Setup Toggle */}
+          <div className={styles.customToggle}>
+            <button
+              type="button"
+              onClick={() => setShowCustomCard(!showCustomCard)}
+              className={styles.customToggleButton}
+            >
+              <span className={styles.customToggleIcon}>{showCustomCard ? '▼' : '▶'}</span>
+              <span>⚙️ Custom Setup</span>
+            </button>
+          </div>
+
+          {/* Custom Setup Card */}
+          {showCustomCard && (
+            <div
+              className={`${styles.customCard} ${selectedRoute === 'custom' ? styles.customCardSelected : ''}`}
+            >
+              <div className={styles.customCardHeader}>
+                <span className={styles.routeIcon}>⚙️</span>
+                <span className={styles.customCardTitle}>Custom Setup</span>
+              </div>
+
+              <div className={styles.customCardContent}>
+                {/* Protocol Dropdown */}
+                <div className={styles.customField}>
+                  <label htmlFor="custom-protocol" className={styles.customLabel}>
+                    Protocol
+                  </label>
+                  <select
+                    id="custom-protocol"
+                    value={customProtocol || ''}
+                    onChange={(e) => {
+                      setCustomProtocol(e.target.value);
+                      // Reset multiplier if it exceeds new protocol's max
+                      const newMax = getMaxMultiplierForProtocol(e.target.value);
+                      if (customMultiplier > newMax) {
+                        setCustomMultiplier(Math.min(customMultiplier, newMax));
+                      }
+                    }}
+                    className={styles.customSelect}
+                  >
+                    {supportedProtocols.map((protocol) => (
+                      <option key={protocol.id} value={protocol.id}>
+                        {protocol.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Multiplier Slider */}
+                <div className={styles.customField}>
+                  <label htmlFor="custom-multiplier" className={styles.customLabel}>
+                    Multiplier: <strong>{customMultiplier.toFixed(1)}x</strong>
+                  </label>
+                  <input
+                    id="custom-multiplier"
+                    type="range"
+                    min="1.1"
+                    max={Math.max(currentMaxMultiplier, 1.1)}
+                    step="0.1"
+                    value={customMultiplier}
+                    onChange={(e) => setCustomMultiplier(parseFloat(e.target.value))}
+                    className={styles.customSlider}
+                  />
+                  <div className={styles.customSliderLabels}>
+                    <span>1.1x</span>
+                    <span className={styles.maxLabel}>Max: {currentMaxMultiplier.toFixed(1)}x</span>
+                  </div>
+                </div>
+
+                {/* Validation Error */}
+                {isMultiplierExceeded && (
+                  <div className={styles.validationError}>
+                    ⚠️ Multiplier exceeds maximum ({currentMaxMultiplier.toFixed(1)}x) for this
+                    protocol
+                  </div>
+                )}
+
+                {/* Custom Preview Loading */}
+                {isLoadingCustomPreview && (
+                  <div className={styles.customPreviewLoading}>
+                    <div className={styles.spinnerSmall} />
+                    <span>Calculating preview...</span>
+                  </div>
+                )}
+
+                {/* Custom Preview Error */}
+                {customPreviewError && !isLoadingCustomPreview && (
+                  <div className={styles.customPreviewError}>
+                    Failed to calculate preview. Try a lower multiplier.
+                  </div>
+                )}
+
+                {/* Custom Preview Results */}
+                {customPreview && !isLoadingCustomPreview && !isMultiplierExceeded && (
+                  <div className={styles.customPreviewResults}>
+                    <div className={styles.customPreviewRow}>
+                      <span>Max available:</span>
+                      <span>{customPreview.maxMultiplier.toFixed(1)}x</span>
+                    </div>
+                    <div className={styles.customPreviewRow}>
+                      <span>LTV:</span>
+                      <span>{customPreview.ltvPercent.toFixed(1)}%</span>
+                    </div>
+                    <div className={styles.customPreviewRow}>
+                      <span>Net APY:</span>
+                      <span
+                        className={customPreview.netApy >= 0 ? styles.positive : styles.negative}
+                      >
+                        {formatApy(customPreview.netApy)}
+                      </span>
+                    </div>
+                    <div className={styles.customPreviewRow}>
+                      <span>Liq. Price:</span>
+                      <span>
+                        {formatLiquidationPrice(
+                          customPreview.liquidationPrice,
+                          customPreview.priceDropBuffer
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Select Custom Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (customPreview && customProtocol && !isMultiplierExceeded) {
+                      const customRoute: LeverageRoute = {
+                        protocol: PROTOCOL_ID_TO_ENUM[customProtocol],
+                        multiplier: customMultiplier,
+                        preview: customPreview,
+                      };
+                      onRouteSelect('custom', customRoute);
+                    }
+                  }}
+                  disabled={!customPreview || isMultiplierExceeded || isLoadingCustomPreview}
+                  className={styles.selectCustomButton}
+                >
+                  {selectedRoute === 'custom' ? '✓ Selected' : 'Select Custom Route'}
+                </button>
+              </div>
             </div>
           )}
 
