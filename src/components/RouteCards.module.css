@@ -346,6 +346,247 @@
   margin-bottom: 4px;
 }
 
+/* Custom Setup Toggle */
+.customToggle {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.customToggleButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px dashed #444;
+  color: var(--text-secondary);
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.customToggleButton:hover {
+  border-color: #6cf;
+  color: #6cf;
+}
+
+.customToggleIcon {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+/* Custom Card */
+.customCard {
+  background: var(--bg-secondary);
+  border: 2px solid #333;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 16px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: all 0.2s ease;
+}
+
+.customCard:hover {
+  border-color: #555;
+}
+
+.customCardSelected {
+  border-color: #6cf;
+  background: rgba(108, 190, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(108, 190, 255, 0.15);
+}
+
+.customCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.customCardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.customCardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.customField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.customLabel {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.customLabel strong {
+  color: var(--text-primary);
+}
+
+.customSelect {
+  background: var(--bg-panel);
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.customSelect:hover {
+  border-color: #6cf;
+}
+
+.customSelect:focus {
+  outline: none;
+  border-color: #6cf;
+}
+
+.customSlider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: #333;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.customSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #6cf;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.customSlider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.customSlider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #6cf;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.customSliderLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.maxLabel {
+  color: #4caf50;
+}
+
+.validationError {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  color: #ff6b6b;
+  font-size: 13px;
+  text-align: center;
+}
+
+.customPreviewLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.spinnerSmall {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #333;
+  border-top: 2px solid #6cf;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.customPreviewError {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  color: #ff6b6b;
+  font-size: 13px;
+  text-align: center;
+}
+
+.customPreviewResults {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.customPreviewRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.customPreviewRow span:first-child {
+  color: var(--text-secondary);
+}
+
+.customPreviewRow span:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.selectCustomButton {
+  background: linear-gradient(45deg, #6cf, #4caf50);
+  border: none;
+  color: white;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.selectCustomButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(108, 190, 255, 0.3);
+}
+
+.selectCustomButton:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .routeOptions {
     flex-direction: column;
@@ -363,5 +604,9 @@
 
   .description {
     font-size: 14px;
+  }
+
+  .customCard {
+    max-width: 100%;
   }
 }

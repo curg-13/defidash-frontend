@@ -28,58 +28,6 @@
   line-height: 1.5;
 }
 
-/* Protocol Section */
-.protocolSection {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-bottom: 32px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 12px;
-  border: 1px solid var(--border-app);
-}
-
-.protocolLabel {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
-}
-
-.protocolRow {
-  display: flex;
-  gap: 12px;
-}
-
-.protocolBadge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-app);
-  border-radius: 8px;
-  text-decoration: none;
-  color: var(--text-primary);
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.protocolBadge:hover {
-  border-color: var(--accent-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.protocolLogo {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-}
-
 .connectionWarning {
   background: rgba(255, 193, 7, 0.1);
   border: 1px solid rgba(255, 193, 7, 0.3);

@@ -6,11 +6,10 @@ import { WizardStepper } from '../components/WizardStepper';
 import { AssetSelector } from '../components/AssetSelector';
 import { RouteCards } from '../components/RouteCards';
 import { PreviewPanel } from '../components/PreviewPanel';
-import { protocols } from '../config/protocols';
 import type { LeverageRoute } from 'defi-dash-sdk';
 
 type WizardStep = 1 | 2 | 3;
-type RouteType = 'maxLeverage' | 'bestApy';
+type RouteType = 'maxLeverage' | 'bestApy' | 'custom';
 
 export function StrategyPage() {
   const account = useCurrentAccount();
@@ -114,25 +113,6 @@ export function StrategyPage() {
             Create leveraged positions in 3 simple steps. We&apos;ll find the best routes and rates
             for you.
           </p>
-        </div>
-
-        {/* Supported Protocols */}
-        <div className={styles.protocolSection}>
-          <span className={styles.protocolLabel}>Powered by</span>
-          <div className={styles.protocolRow}>
-            {protocols.map((protocol) => (
-              <a
-                key={protocol.id}
-                href={protocol.siteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.protocolBadge}
-              >
-                <img src={protocol.logo} alt={protocol.name} className={styles.protocolLogo} />
-                <span>{protocol.name}</span>
-              </a>
-            ))}
-          </div>
         </div>
 
         {/* Wizard Stepper */}
