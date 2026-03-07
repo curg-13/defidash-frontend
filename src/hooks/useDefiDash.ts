@@ -139,7 +139,12 @@ export function useDefiDash() {
   // }, [getSDK]);
 
   const previewLeverage = useCallback(
-    async (params: { protocol: LendingProtocol; depositAsset: string; depositAmount: string; multiplier: number }) => {
+    async (params: {
+      protocol: LendingProtocol;
+      depositAsset: string;
+      depositAmount: string;
+      multiplier: number;
+    }) => {
       const sdk = await getSDK();
       return sdk.previewLeverage(params);
     },
@@ -199,11 +204,14 @@ export function useDefiDash() {
     return sdk.getOpenPositions();
   }, [getSDK]);
 
-  const getTokenPrice = useCallback(async (asset: string) => {
-    // Use read-only SDK if wallet is not connected, otherwise use regular SDK
-    const sdk = account?.address ? await getSDK() : await getReadOnlySDK();
-    return sdk.getTokenPrice(asset);
-  }, [account, getSDK, getReadOnlySDK]);
+  const getTokenPrice = useCallback(
+    async (asset: string) => {
+      // Use read-only SDK if wallet is not connected, otherwise use regular SDK
+      const sdk = account?.address ? await getSDK() : await getReadOnlySDK();
+      return sdk.getTokenPrice(asset);
+    },
+    [account, getSDK, getReadOnlySDK]
+  );
 
   return {
     isConnected: !!account?.address,

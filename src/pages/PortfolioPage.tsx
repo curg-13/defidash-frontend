@@ -1,291 +1,132 @@
-import { useMemo, useState } from 'react';
-import { Modal } from '../components/Modal';
-import { LoopingStrategy } from '../components/LoopingStrategy';
-import { SkeletonTable } from '../components/SkeletonTable';
+import { useCurrentAccount } from '@mysten/dapp-kit';
 import styles from './PortfolioPage.module.css';
 import appStyles from '../App.module.css';
-import { formatNumber, formatPercent, formatPercentValue } from '../utils/format';
+import { formatNumber, formatPercentValue } from '../utils/format';
 import { usePortfolioQuery } from '../hooks/usePortfolio';
-
-// Token icon URLs (using CoinGecko CDN for common tokens)
-const TOKEN_ICONS: Record<string, string> = {
-  SUI: 'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg',
-  USDC: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png',
-  USDT: 'https://assets.coingecko.com/coins/images/325/small/Tether.png',
-  WETH: 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
-  ETH: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
-  WBTC: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
-  BTC: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
-  LBTC: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
-};
-
-function getTokenIcon(symbol: string): string | null {
-  return TOKEN_ICONS[symbol.toUpperCase()] || null;
-}
-
-function getProtocolBadgeClass(protocol: string): string {
-  if (protocol === 'suilend') return styles.protocolSuilend;
-  if (protocol === 'navi') return styles.protocolNavi;
-  return '';
-}
+import { PositionCard } from '../components/PositionCard';
+import { SkeletonTable } from '../components/SkeletonTable';
 
 export function PortfolioPage() {
-  const { portfolios, summary, isLoading } = usePortfolioQuery();
-
-  const [selectedPosition, setSelectedPosition] = useState<{
-    token: string;
-    supplyApy?: number;
-    borrowApy?: number;
-    maxLtv: number;
-  } | null>(null);
+  const account = useCurrentAccount();
+  const { portfolios, summary, isLoading, refetch } = usePortfolioQuery();
 
   const totalCollateral = summary.totalSuppliedUsd;
   const totalBorrow = summary.totalBorrowedUsd;
-
-  // If summary.netAprPct is available, use it. Otherwise calculate fallback or default to 0.
-  // The summary netAprPct is already computed in usePortfolioQuery using weighted earnings.
+  const netValue = totalCollateral - totalBorrow;
   const netAprPct = summary.netAprPct !== undefined ? summary.netAprPct : 0;
-
   const calculatedHealthFactor = summary.healthFactor;
-  // If healthFactor is Infinity (no borrow), risk is 0.
-  // Risk = 1 / HF * 100. (HF=1 => 100% Risk. HF=2 => 50% Risk)
+
+  // Risk percentage for health bar
   const riskPercentage =
     calculatedHealthFactor > 0 && calculatedHealthFactor !== Infinity
       ? Math.min(Math.max((1 / calculatedHealthFactor) * 100, 0), 100)
       : 0;
 
-  // Flatten positions for the "My Lending" tables if we want to show a consolidated view
-  // We include protocol info so we can distinguish or group later if needed.
-  const allPositions = useMemo(() => {
-    return portfolios.flatMap((p) => p.positions.map((pos) => ({ ...pos, protocol: p.protocol })));
-  }, [portfolios]);
-
-  const supplyRows = useMemo(
-    () => allPositions.filter((pos) => pos.side === 'supply' && pos.amount > 0),
-    [allPositions]
-  );
-  const borrowRows = useMemo(
-    () => allPositions.filter((pos) => pos.side === 'borrow' && pos.amount > 0),
-    [allPositions]
+  // Filter out empty portfolios
+  const activePortfolios = portfolios.filter(
+    (p) => p.positions && p.positions.some((pos) => pos.amount > 0)
   );
 
-  return (
-    <>
+  if (!account) {
+    return (
       <main className={appStyles.content}>
-        <section className={styles.strategySection}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>My Status</h2>
-          </div>
-
-          <div className={styles.statusArea}>
-            <div className={styles.statusMain}>
-              <div className={styles.metricsGroup}>
-                <div className={styles.metricBox}>
-                  <span className={styles.metricLabel}>Net Value</span>
-                  <span className={styles.metricValue}>
-                    ${formatNumber(totalCollateral - totalBorrow)}
-                  </span>
-                </div>
-                <div className={styles.metricBox}>
-                  <span className={styles.metricLabel}>Net APY</span>
-                  <div className={styles.apyContainer}>
-                    <span className={styles.metricValue}>{formatPercentValue(netAprPct)}</span>
-                    <span className={styles.apyEstimate}>
-                      Est. $
-                      {formatNumber(
-                        portfolios.reduce((sum, p) => sum + (p.totalAnnualNetEarningsUsd || 0), 0)
-                      )}{' '}
-                      /yr
-                    </span>
-                  </div>
-                </div>
-                <div className={styles.healthBox}>
-                  <div className={styles.healthInfo}>
-                    <span className={styles.metricLabel}>Health Factor</span>
-                    <span className={styles.healthValue}>
-                      {calculatedHealthFactor === Infinity
-                        ? '∞'
-                        : calculatedHealthFactor.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className={styles.healthBar}>
-                    {/* Gradient: Green (Low Risk) -> Red (High Risk) */}
-                    <div
-                      className={styles.healthIndicator}
-                      style={{ left: `${riskPercentage}%` }}
-                    />
-                  </div>
-                  <div className={styles.healthLabels}>
-                    <span>Safe</span>
-                    <span>Risk</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.lendingSectionHeader}>
-            <h2 className={styles.sectionTitle}>My Lending</h2>
-          </div>
-
-          <div className={styles.lendingTablesContainer}>
-            {/* Supplies Panel */}
-            <div className={styles.lendingPanel}>
-              <div className={styles.panelHeader}>
-                <h3 className={styles.panelTitle}>Supplies</h3>
-                <div className={styles.headerStats}>
-                  <div className={styles.statPill}>
-                    <span className={styles.statLabel}>Collateral</span>
-                    <span className={styles.statValue}>${formatNumber(totalCollateral)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.tableHeaderRow}>
-                <span className={styles.headerAssetSupply}>Asset</span>
-                <span className={styles.headerApySupply}>APY</span>
-                <span className={styles.headerRewards}>Rewards</span>
-                <span className={styles.headerLiqPrice}>Liq. Price</span>
-                <span className={styles.headerValue}>Value</span>
-              </div>
-
-              <div className={styles.assetList}>
-                {isLoading && <SkeletonTable rows={3} columns={6} />}
-                {!isLoading && supplyRows.length === 0 && (
-                  <div className={styles.emptyState}>No supplies detected.</div>
-                )}
-                {supplyRows.map((asset) => {
-                  const iconUrl = getTokenIcon(asset.symbol);
-                  return (
-                    <div key={asset.protocol + asset.coinType + 'supply'} className={styles.assetRow}>
-                      <div className={`${styles.assetInfo} ${styles.colAssetSupply}`}>
-                        {iconUrl ? (
-                          <img src={iconUrl} alt={asset.symbol} className={styles.tokenIcon} />
-                        ) : (
-                          <div className={styles.tokenIconPlaceholder}>{asset.symbol[0]}</div>
-                        )}
-                        <div className={styles.assetMeta}>
-                          <span className={styles.assetAmount}>
-                            {formatNumber(asset.amount)}
-                            <span className={`${styles.protocolBadge} ${getProtocolBadgeClass(asset.protocol)}`}>
-                              {asset.protocol}
-                            </span>
-                          </span>
-                          <span className={styles.assetSymbol}>{asset.symbol}</span>
-                        </div>
-                      </div>
-                      <div className={`${styles.assetApy} ${styles.colApySupply}`}>
-                        {formatPercent(asset.apy)}
-                      </div>
-                      <div className={styles.colRewards}>
-                        {asset.rewards && asset.rewards.length > 0 ? (
-                          asset.rewards.map((r, idx) => (
-                            <div key={idx}>
-                              +{formatNumber(r.amount, 6)} {r.symbol}
-                            </div>
-                          ))
-                        ) : (
-                          <span className={styles.rewardsEmpty}>-</span>
-                        )}
-                      </div>
-                      <div className={styles.colLiqPrice}>
-                        {asset.estimatedLiquidationPrice !== undefined
-                          ? `$${formatNumber(asset.estimatedLiquidationPrice, 2)}`
-                          : '-'}
-                      </div>
-                      <div className={styles.colValue}>${formatNumber(asset.valueUsd)}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Borrows Panel */}
-            <div className={styles.lendingPanel}>
-              <div className={styles.panelHeader}>
-                <h3 className={styles.panelTitle}>Borrows</h3>
-                <div className={styles.headerStats}>
-                  <div className={styles.statPill}>
-                    <span className={styles.statLabel}>Debt</span>
-                    <span className={styles.statValue}>${formatNumber(totalBorrow)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.tableHeaderRow}>
-                <span className={styles.headerAssetSupply}>Asset</span>
-                <span className={styles.headerApySupply}>APY</span>
-                <span className={styles.headerRewards}>Rewards</span>
-                <span className={styles.headerLiqPrice}>Liq. Price</span>
-                <span className={styles.headerValue}>Value</span>
-              </div>
-
-              <div className={styles.assetList}>
-                {isLoading && <SkeletonTable rows={3} columns={5} />}
-                {!isLoading && borrowRows.length === 0 && (
-                  <div className={styles.emptyState}>No borrows detected.</div>
-                )}
-                {borrowRows.map((asset) => {
-                  const iconUrl = getTokenIcon(asset.symbol);
-                  return (
-                    <div key={asset.protocol + asset.coinType + 'borrow'} className={styles.assetRow}>
-                      <div className={`${styles.assetInfo} ${styles.colAssetSupply}`}>
-                        {iconUrl ? (
-                          <img src={iconUrl} alt={asset.symbol} className={styles.tokenIcon} />
-                        ) : (
-                          <div className={`${styles.tokenIconPlaceholder} ${styles.borrowsIcon}`}>
-                            {asset.symbol[0]}
-                          </div>
-                        )}
-                        <div className={styles.assetMeta}>
-                          <span className={styles.assetAmount}>
-                            {formatNumber(asset.amount)}
-                            <span className={`${styles.protocolBadge} ${getProtocolBadgeClass(asset.protocol)}`}>
-                              {asset.protocol}
-                            </span>
-                          </span>
-                          <span className={styles.assetSymbol}>{asset.symbol}</span>
-                        </div>
-                      </div>
-                      <div className={`${styles.assetApy} ${styles.colApySupply}`}>
-                        {formatPercent(asset.apy)}
-                      </div>
-                      <div className={styles.colRewards}>
-                        {asset.rewards && asset.rewards.length > 0 ? (
-                          asset.rewards.map((r, idx) => (
-                            <div key={idx}>
-                              +{formatNumber(r.amount, 6)} {r.symbol}
-                            </div>
-                          ))
-                        ) : (
-                          <span className={styles.rewardsEmpty}>-</span>
-                        )}
-                      </div>
-                      <div className={styles.colLiqPrice}>-</div>
-                      <div className={styles.colValue}>${formatNumber(asset.valueUsd)}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+        <section className={styles.container}>
+          <div className={styles.emptyState}>
+            <span className={styles.emptyIcon}>🔗</span>
+            <h2>Connect Your Wallet</h2>
+            <p>Connect your wallet to view your DeFi positions across all supported protocols.</p>
           </div>
         </section>
       </main>
+    );
+  }
 
-      {selectedPosition && (
-        <Modal
-          isOpen={true}
-          onClose={() => setSelectedPosition(null)}
-          title={`Manage Strategy: ${selectedPosition.token}`}
-        >
-          <LoopingStrategy
-            token={selectedPosition.token}
-            supplyApy={selectedPosition.supplyApy || 0}
-            borrowApy={selectedPosition.borrowApy || 0}
-            maxLtv={selectedPosition.maxLtv}
-          />
-        </Modal>
-      )}
-    </>
+  return (
+    <main className={appStyles.content}>
+      <section className={styles.container}>
+        {/* Overview Section */}
+        <div className={styles.overviewSection}>
+          <h1 className={styles.pageTitle}>Portfolio</h1>
+
+          <div className={styles.overviewGrid}>
+            <div className={styles.overviewCard}>
+              <span className={styles.overviewLabel}>Net Worth</span>
+              <span className={styles.overviewValue}>${formatNumber(netValue)}</span>
+              <div className={styles.overviewBreakdown}>
+                <span className={styles.breakdownItem}>
+                  Collateral: ${formatNumber(totalCollateral)}
+                </span>
+                <span className={styles.breakdownItem}>Debt: -${formatNumber(totalBorrow)}</span>
+              </div>
+            </div>
+
+            <div className={styles.overviewCard}>
+              <span className={styles.overviewLabel}>Net APY</span>
+              <span
+                className={`${styles.overviewValue} ${netAprPct >= 0 ? styles.positive : styles.negative}`}
+              >
+                {formatPercentValue(netAprPct)}
+              </span>
+              <span className={styles.overviewSubtext}>
+                Est. $
+                {formatNumber(
+                  portfolios.reduce((sum, p) => sum + (p.totalAnnualNetEarningsUsd || 0), 0)
+                )}{' '}
+                /year
+              </span>
+            </div>
+
+            <div className={styles.overviewCard}>
+              <span className={styles.overviewLabel}>Health Factor</span>
+              <span className={styles.overviewValue}>
+                {calculatedHealthFactor === Infinity ? '∞' : calculatedHealthFactor.toFixed(2)}
+              </span>
+              <div className={styles.healthBar}>
+                <div className={styles.healthIndicator} style={{ left: `${riskPercentage}%` }} />
+              </div>
+              <div className={styles.healthLabels}>
+                <span>Safe</span>
+                <span>Risk</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Positions Section */}
+        <div className={styles.positionsSection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Active Positions</h2>
+            <span className={styles.positionCount}>
+              {activePortfolios.length} protocol{activePortfolios.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+
+          {isLoading && (
+            <div className={styles.loadingState}>
+              <SkeletonTable rows={3} columns={4} />
+            </div>
+          )}
+
+          {!isLoading && activePortfolios.length === 0 && (
+            <div className={styles.emptyPositions}>
+              <span className={styles.emptyIcon}>📊</span>
+              <h3>No Active Positions</h3>
+              <p>Create your first leveraged position to start earning.</p>
+              <a href="/strategy" className={styles.ctaButton}>
+                Create Position →
+              </a>
+            </div>
+          )}
+
+          {!isLoading && activePortfolios.length > 0 && (
+            <div className={styles.positionCards}>
+              {activePortfolios.map((portfolio) => (
+                <PositionCard key={portfolio.protocol} portfolio={portfolio} onRefresh={refetch} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
   );
 }

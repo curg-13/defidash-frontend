@@ -224,7 +224,9 @@ export function LoopingStrategy({
           <div className={styles.metrics}>
             <div className={styles.metric}>
               <span className={styles.metricLabel}>Net APY</span>
-              <span className={`${styles.metricValue} ${netApy >= 0 ? styles.good : styles.danger}`}>
+              <span
+                className={`${styles.metricValue} ${netApy >= 0 ? styles.good : styles.danger}`}
+              >
                 {formatPercent(netApy)}
               </span>
             </div>
@@ -241,10 +243,7 @@ export function LoopingStrategy({
               </span>
             </div>
           </div>
-
         </>
-
-
       )}
 
       {activeTab === 'unwind' && (
