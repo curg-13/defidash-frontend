@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useDefiDash } from '../hooks/useDefiDash';
-import { SUPPORTED_TOKENS } from '../config/protocols';
+import { SUPPORTED_TOKENS, getProtocolsForAsset, protocolsById } from '../config/protocols';
 import styles from './AssetSelector.module.css';
 
 interface AssetSelectorProps {
@@ -11,7 +11,7 @@ interface AssetSelectorProps {
 const SUPPORTED_ASSETS = ['SUI', 'LBTC', 'XBTC'] as const;
 
 export function AssetSelector({ selectedAsset, onAssetSelect }: AssetSelectorProps) {
-  const { getTokenPrice, isConnected } = useDefiDash();
+  const { getTokenPrice } = useDefiDash();
 
   const { data: prices = {} } = useQuery({
     queryKey: ['tokenPrices'],
@@ -25,7 +25,7 @@ export function AssetSelector({ selectedAsset, onAssetSelect }: AssetSelectorPro
           return [asset, 0] as const;
         }
       });
-      
+
       const priceResults = await Promise.all(pricePromises);
       return Object.fromEntries(priceResults);
     },
@@ -35,7 +35,7 @@ export function AssetSelector({ selectedAsset, onAssetSelect }: AssetSelectorPro
 
   const formatPrice = (price: number) => {
     if (price === 0) return '--';
-    return price >= 1 
+    return price >= 1
       ? `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
       : `$${price.toFixed(4)}`;
   };
@@ -46,13 +46,14 @@ export function AssetSelector({ selectedAsset, onAssetSelect }: AssetSelectorPro
       <p className={styles.description}>
         Choose the asset you want to deposit and leverage up using borrowing protocols.
       </p>
-      
+
       <div className={styles.assetGrid}>
         {SUPPORTED_ASSETS.map((asset) => {
           const tokenInfo = SUPPORTED_TOKENS[asset];
           const price = prices[asset] || 0;
           const isSelected = selectedAsset === asset;
-          
+          const supportedProtocols = getProtocolsForAsset(asset);
+
           return (
             <button
               key={asset}
@@ -75,8 +76,20 @@ export function AssetSelector({ selectedAsset, onAssetSelect }: AssetSelectorPro
                   <div className={styles.assetName}>{tokenInfo?.name || asset}</div>
                 </div>
               </div>
-              <div className={styles.assetPrice}>
-                {formatPrice(price)}
+              <div className={styles.assetPrice}>{formatPrice(price)}</div>
+              <div className={styles.protocolSupport}>
+                {supportedProtocols.map((protocolId) => {
+                  const protocol = protocolsById[protocolId];
+                  return protocol ? (
+                    <img
+                      key={protocolId}
+                      src={protocol.logo}
+                      alt={protocol.name}
+                      className={styles.protocolMiniLogo}
+                      title={protocol.name}
+                    />
+                  ) : null;
+                })}
               </div>
             </button>
           );

@@ -224,33 +224,33 @@
     padding: 20px 10px;
     max-width: 100%;
   }
-  
+
   .title {
     font-size: 20px;
   }
-  
+
   .description {
     font-size: 14px;
   }
-  
+
   .cardHeader {
     padding: 16px 20px;
   }
-  
+
   .previewContent {
     padding: 20px;
   }
-  
+
   .actions {
     padding: 16px 20px;
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .executeButton {
     max-width: none;
   }
-  
+
   .successToast {
     right: 10px;
     left: 10px;

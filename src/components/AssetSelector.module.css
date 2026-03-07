@@ -93,21 +93,44 @@
   color: #6cf;
 }
 
+.protocolSupport {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.protocolMiniLogo {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  opacity: 0.8;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.protocolMiniLogo:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
 @media (max-width: 640px) {
   .assetGrid {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .assetCard {
     min-width: 280px;
     max-width: 320px;
   }
-  
+
   .title {
     font-size: 20px;
   }
-  
+
   .description {
     font-size: 14px;
   }

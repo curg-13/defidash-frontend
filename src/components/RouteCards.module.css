@@ -129,7 +129,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error State */
@@ -203,8 +205,12 @@
 }
 
 @keyframes glow {
-  from { opacity: 0.5; }
-  to { opacity: 0.8; }
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 0.8;
+  }
 }
 
 .recommendedBadge {
@@ -345,16 +351,16 @@
     flex-direction: column;
     align-items: center;
   }
-  
+
   .routeCard {
     max-width: 100%;
     min-width: 280px;
   }
-  
+
   .title {
     font-size: 20px;
   }
-  
+
   .description {
     font-size: 14px;
   }

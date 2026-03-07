@@ -27,9 +27,9 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
   const executeLeverage = useMutation({
     mutationFn: async () => {
       if (!account?.address) throw new Error('Wallet not connected');
-      
+
       const sdk = await getSDK();
-      
+
       const tx = new Transaction();
       tx.setSender(account.address);
       tx.setGasBudget(200_000_000);
@@ -46,11 +46,11 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
     onSuccess: (result) => {
       console.log('[PreviewPanel] Transaction Success:', result.digest);
       setShowSuccessToast(true);
-      
+
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ['portfolio'] });
       queryClient.invalidateQueries({ queryKey: ['tokenBalance'] });
-      
+
       // Navigate to portfolio after 2 seconds
       setTimeout(() => {
         navigate('/portfolio');
@@ -61,7 +61,7 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
     },
   });
 
-  const formatCurrency = (value: number) => 
+  const formatCurrency = (value: number) =>
     `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   // SDK returns APYs as decimals (0.0274 = 2.74%) → need × 100
@@ -76,9 +76,7 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
   const formatLiquidationPrice = (price: number, priceDropBuffer: number) => (
     <>
       {formatCurrency(price)}{' '}
-      <span style={{ color: '#ff4444', fontWeight: 500 }}>
-        (-{priceDropBuffer.toFixed(1)}%)
-      </span>
+      <span style={{ color: '#ff4444', fontWeight: 500 }}>(-{priceDropBuffer.toFixed(1)}%)</span>
     </>
   );
 
@@ -146,10 +144,10 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
             <div className={styles.sectionTitle}>— Risk —</div>
             <div className={styles.row}>
               <span className={styles.label}>Health Factor:</span>
-              <span 
+              <span
                 className={styles.value}
-                style={{ 
-                  color: getHealthColor(1 / (preview.ltvPercent / 100)) 
+                style={{
+                  color: getHealthColor(1 / (preview.ltvPercent / 100)),
                 }}
               >
                 {(1 / (preview.ltvPercent / 100)).toFixed(2)}
@@ -157,9 +155,10 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
             </div>
             <div className={styles.row}>
               <span className={styles.label}>Liq. Price:</span>
-              <span className={styles.value}>{formatLiquidationPrice(preview.liquidationPrice, preview.priceDropBuffer)}</span>
+              <span className={styles.value}>
+                {formatLiquidationPrice(preview.liquidationPrice, preview.priceDropBuffer)}
+              </span>
             </div>
-
           </div>
 
           <div className={styles.divider} />
@@ -169,27 +168,37 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
             <div className={styles.sectionTitle}>— Returns —</div>
             <div className={styles.row}>
               <span className={styles.label}>Supply APY:</span>
-              <span className={styles.value}>{formatPercent(preview.supplyApyBreakdown.total, false)}</span>
+              <span className={styles.value}>
+                {formatPercent(preview.supplyApyBreakdown.total, false)}
+              </span>
             </div>
             <div className={styles.subRow}>
               <span className={styles.subLabel}>└ Reward:</span>
-              <span className={styles.subValue}>{formatPercent(preview.supplyApyBreakdown.reward, false)}</span>
+              <span className={styles.subValue}>
+                {formatPercent(preview.supplyApyBreakdown.reward, false)}
+              </span>
             </div>
             <div className={styles.row}>
               <span className={styles.label}>Borrow APY:</span>
-              <span className={styles.value}>{formatPercent(preview.borrowApyBreakdown.gross, false)}</span>
+              <span className={styles.value}>
+                {formatPercent(preview.borrowApyBreakdown.gross, false)}
+              </span>
             </div>
             <div className={styles.subRow}>
               <span className={styles.subLabel}>└ Rebate:</span>
-              <span className={styles.subValue}>{formatPercent(preview.borrowApyBreakdown.rebate)}</span>
+              <span className={styles.subValue}>
+                {formatPercent(preview.borrowApyBreakdown.rebate)}
+              </span>
             </div>
             <div className={styles.subRow}>
               <span className={styles.subLabel}>└ Net:</span>
-              <span className={styles.subValue}>{formatPercent(preview.borrowApyBreakdown.net, false)}</span>
+              <span className={styles.subValue}>
+                {formatPercent(preview.borrowApyBreakdown.net, false)}
+              </span>
             </div>
             <div className={styles.row}>
               <span className={styles.label}>Net APY:</span>
-              <span 
+              <span
                 className={`${styles.value} ${preview.netApy >= 0 ? styles.positive : styles.negative}`}
               >
                 {formatPercent(preview.netApy)}
@@ -234,10 +243,7 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
             disabled={executeLeverage.isPending || !account}
             className={styles.executeButton}
           >
-            {executeLeverage.isPending 
-              ? 'Executing...' 
-              : 'Open Position'
-            }
+            {executeLeverage.isPending ? 'Executing...' : 'Open Position'}
           </button>
         </div>
 
@@ -251,9 +257,7 @@ export function PreviewPanel({ selectedAsset, usdValue, routeData, onBack }: Pre
 
       {/* Success Toast */}
       {showSuccessToast && (
-        <div className={styles.successToast}>
-          ✅ Position opened! Redirecting to portfolio...
-        </div>
+        <div className={styles.successToast}>✅ Position opened! Redirecting to portfolio...</div>
       )}
     </div>
   );

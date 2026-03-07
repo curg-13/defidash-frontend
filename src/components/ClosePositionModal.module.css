@@ -1,0 +1,211 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.protocolHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-app);
+}
+
+.protocolLogo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.protocolName {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.summaryItem {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-app);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summaryLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.summaryValue {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.summaryValueNegative {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ff6b6b;
+}
+
+.summaryValueHighlight {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.positionDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.assetList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.assetRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.assetSymbol {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.assetAmount {
+  color: var(--text-secondary);
+}
+
+.assetValue {
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.assetValueNegative {
+  color: #ff6b6b;
+  text-align: right;
+}
+
+.assetApy {
+  color: #4ade80;
+  text-align: right;
+}
+
+.assetApyNegative {
+  color: #ff6b6b;
+  text-align: right;
+}
+
+.estimatedOutput {
+  background: rgba(204, 255, 0, 0.05);
+  border: 1px solid rgba(204, 255, 0, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.outputLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.outputValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.outputNote {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.error {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  color: #ff6b6b;
+  font-size: 13px;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cancelButton {
+  flex: 1;
+  padding: 14px;
+  background: transparent;
+  border: 1px solid var(--border-app);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.closeButton {
+  flex: 2;
+  padding: 14px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+.cancelButton:disabled,
+.closeButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
