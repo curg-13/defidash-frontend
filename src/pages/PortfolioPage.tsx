@@ -3,8 +3,10 @@ import styles from './PortfolioPage.module.css';
 import appStyles from '../App.module.css';
 import { formatNumber, formatPercentValue } from '../utils/format';
 import { usePortfolioQuery } from '../hooks/usePortfolio';
+import { useHealthAlerts } from '../hooks/useHealthAlerts';
 import { PositionCard } from '../components/PositionCard';
 import { SkeletonTable } from '../components/SkeletonTable';
+import { AlertBanner } from '../components/AlertBanner';
 
 export function PortfolioPage() {
   const account = useCurrentAccount();
@@ -15,6 +17,15 @@ export function PortfolioPage() {
   const netValue = totalCollateral - totalBorrow;
   const netAprPct = summary.netAprPct !== undefined ? summary.netAprPct : 0;
   const calculatedHealthFactor = summary.healthFactor;
+
+  // Health monitoring alerts
+  const {
+    alertLevel,
+    config,
+    notificationPermission,
+    updateThresholds,
+    toggleBrowserNotifications,
+  } = useHealthAlerts(calculatedHealthFactor);
 
   // Risk percentage for health bar
   const riskPercentage =
@@ -44,6 +55,19 @@ export function PortfolioPage() {
   return (
     <main className={appStyles.content}>
       <section className={styles.container}>
+        {/* Health Alert Banner */}
+        {account && !isLoading && (
+          <AlertBanner
+            alertLevel={alertLevel}
+            healthFactor={calculatedHealthFactor}
+            thresholds={config.thresholds}
+            browserNotifications={config.browserNotifications}
+            notificationPermission={notificationPermission}
+            onToggleNotifications={toggleBrowserNotifications}
+            onUpdateThresholds={updateThresholds}
+          />
+        )}
+
         {/* Overview Section */}
         <div className={styles.overviewSection}>
           <h1 className={styles.pageTitle}>Portfolio</h1>
